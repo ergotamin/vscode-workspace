@@ -1,0 +1,9 @@
+**/*
+!.vscode/**
+!.eslintrc.js
+!.gitignore
+!package.json
+!tslint.json
+!README.md
+!LICENSE
+package-lock.json
