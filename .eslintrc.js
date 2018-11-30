@@ -1,0 +1,52 @@
+module.exports = {
+  root: true,
+  extends: ['airbnb'],
+  parser: 'babel-eslint',
+  parserOptions: {
+    ecmaVersion: 6,
+    ecmaFeatures: {
+      jsx: true,
+      browser: true,
+      commonjs: true,
+      jquery: true,
+      node: true,
+      es6: true,
+      worker: true,
+      webextensions: true,
+      'shared-node-browser': true,
+      nashorn: true,
+    },
+  },
+  rules: {
+    'react/jsx-filename-extension': [
+      'error',
+      {
+        extensions: ['.jsx', '.js'],
+      },
+    ],
+    'react/prop-types': [
+      'off',
+      {
+        ignore: [],
+        customValidators: [],
+        skipUndeclared: false,
+      },
+    ],
+    code: '125',
+    'no-undef': 'off',
+    'no-console': 'off',
+    'func-names': 'off',
+    'no-unused-vars': 'off',
+    'no-underscore-dangle': 'off',
+    'prefer-destructuring': 'off',
+    'class-methods-use-this': 'off',
+    'jsx-a11y/no-static-element-interactions': 'off',
+    'jsx-a11y/click-events-have-key-events': 'off',
+    'react/prefer-stateless-function': 'off',
+    'react/no-unused-state': 'off',
+    'react/jsx-no-bind': 'off',
+    'no-useless-constructor': 'off',
+    'import/prefer-default-export': 'off',
+    'import/no-extraneous-dependencies': 'off',
+  },
+};
