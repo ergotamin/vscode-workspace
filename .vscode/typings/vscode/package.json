@@ -1,0 +1,8 @@
+{
+  "name": "@types/vscode",
+  "version": "1.0.0",
+  "description": "vscode type-definitions",
+  "main": "",
+  "author": "",
+  "license": "ISC"
+}

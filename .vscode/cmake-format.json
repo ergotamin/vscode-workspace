@@ -1,0 +1,16 @@
+{
+  "line_width": 130,
+  "tab_size": 2,
+  "max_subargs_per_line": 4,
+  "separate_ctrl_name_with_space": false,
+  "separate_fn_name_with_space": false,
+  "dangle_parens": true,
+  "bullet_char": "*",
+  "enum_char": ".",
+  "line_ending": "unix",
+  "command_case": "lower",
+  "keyword_case": "upper",
+  "enable_markup": true,
+  "first_comment_is_literal": false,
+  "literal_comment_pattern": null
+}
