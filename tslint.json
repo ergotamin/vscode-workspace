@@ -2,17 +2,7 @@
   "defaultSeverity": "warning",
   "extends": "tslint-config-airbnb",
   "linterOptions": {
-    "exclude": [
-      ".eslintrc.js",
-      "**/*.js",
-      "**/*.jsx",
-      "C/*",
-      "Java/*",
-      "script/python/*",
-      "script/shell/*",
-      "script/js/*",
-      "web/react-js/*"
-    ]
+    "exclude": [".eslintrc.js", "**/*.js", "**/*.jsx"]
   },
   "rules": {
     "semicolon": [false],

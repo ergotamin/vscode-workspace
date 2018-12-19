@@ -1,916 +1,1130 @@
-de/a8uid/a8gid/a12size/a12mtime/" .
-                   "a8checksum/a1typeflag/a100link/a6magic/a2version/" .
-                   "a32uname/a32gname/a8devmajor/a8devminor/a131prefix";
-        } else {
-            $this->_fmt = "Z100filename/Z8mode/Z8uid/Z8gid/Z12size/Z12mtime/" .
-                   "Z8checksum/Z1typeflag/Z100link/Z6magic/Z2version/" .
-                   "Z32uname/Z32gname/Z8devmajor/Z8devminor/Z131prefix";
-        }
-
-
-    }
-
-    public function __destruct()
-    {
-        $this->_close();
-        // ----- Look for a local copy to delete
-        if ($this->_temp_tarname != '') {
-            @unlink($this->_temp_tarname);
-        }
-    }
-
-    /**
-     * This method creates the archive file and add the files / directories
-     * that are listed in $p_filelist.
-     * If a file with the same name exist and is writable, it is replaced
-     * by the new tar.
-     * The method return false and a PEAR error text.
-     * The $p_filelist parameter can be an array of string, each string
-     * representing a filename or a directory name with their path if
-     * needed. It can also be a single string with names separated by a
-     * single blank.
-     * For each directory added in the archive, the files and
-     * sub-directories are also added.
-     * See also createModify() method for more details.
-     *
-     * @param array $p_filelist An array of filenames and directory names, or a
-     *              single string with names separated by a single
-     *              blank space.
-     *
-     * @return true on success, false on error.
-     * @see    createModify()
-     */
-    public function create($p_filelist)
-    {
-        return $this->createModify($p_filelist, '', '');
-    }
-
-    /**
-     * This method add the files / directories that are listed in $p_filelist in
-     * the archive. If the archive does not exist it is created.
-     * The method return false and a PEAR error text.
-     * The files and directories listed are only added at the end of the archive,
-     * even if a file with the same name is already archived.
-     * See also createModify() method for more details.
-     *
-     * @param array $p_filelist An array of filenames and directory names, or a
-     *              single string with names separated by a single
-     *              blank space.
-     *
-     * @return true on success, false on error.
-     * @see    createModify()
-     * @access public
-     */
-    public function add($p_filelist)
-    {
-        return $this->addModify($p_filelist, '', '');
-    }
-
-    /**
-     * @param string $p_path
-     * @param bool $p_preserve
-     * @return bool
-     */
-    public function extract($p_path = '', $p_preserve = false)
-    {
-        return $this->extractModify($p_path, '', $p_preserve);
-    }
-
-    /**
-     * @return array|int
-     */
-    public function listContent()
-    {
-        $v_list_detail = array();
-
-        if ($this->_openRead()) {
-            if (!$this->_extractList('', $v_list_detail, "list", '', '')) {
-                unset($v_list_detail);
-                $v_list_detail = 0;
-            }
-            $this->_close();
-        }
-
-        return $v_list_detail;
-    }
-
-    /**
-     * This method creates the archive file and add the files / directories
-     * that are listed in $p_filelist.
-     * If the file already exists and is writable, it is replaced by the
-     * new tar. It is a create and not an add. If the file exists and is
-     * read-only or is a directory it is not replaced. The method return
-     * false and a PEAR error text.
-     * The $p_filelist parameter can be an array of string, each string
-     * representing a filename or a directory name with their path if
-     * needed. It can also be a single string with names separated by a
-     * single blank.
-     * The path indicated in $p_remove_dir will be removed from the
-     * memorized path of each file / directory listed when this path
-     * exists. By default nothing is removed (empty path '')
-     * The path indicated in $p_add_dir will be added at the beginning of
-     * the memorized path of each file / directory listed. However it can
-     * be set to empty ''. The adding of a path is done after the removing
-     * of path.
-     * The path add/remove ability enables the user to prepare an archive
-     * for extraction in a different path than the origin files are.
-     * See also addModify() method for file adding properties.
-     *
-     * @param array $p_filelist An array of filenames and directory names,
-     *                             or a single string with names separated by
-     *                             a single blank space.
-     * @param string $p_add_dir A string which contains a path to be added
-     *                             to the memorized path of each element in
-     *                             the list.
-     * @param string $p_remove_dir A string which contains a path to be
-     *                             removed from the memorized path of each
-     *                             element in the list, when relevant.
-     *
-     * @return boolean true on success, false on error.
-     * @see addModify()
-     */
-    public function createModify($p_filelist, $p_add_dir, $p_remove_dir = '')
-    {
-        $v_result = true;
-
-        if (!$this->_openWrite()) {
-            return false;
-        }
-
-        if ($p_filelist != '') {
-            if (is_array($p_filelist)) {
-                $v_list = $p_filelist;
-            } elseif (is_string($p_filelist)) {
-                $v_list = explode($this->_separator, $p_filelist);
-            } else {
-                $this->_cleanFile();
-                $this->_error('Invalid file list');
-                return false;
-            }
-
-            $v_result = $this->_addList($v_list, $p_add_dir, $p_remove_dir);
-        }
-
-        if ($v_result) {
-            $this->_writeFooter();
-            $this->_close();
-        } else {
-            $this->_cleanFile();
-        }
-
-        return $v_result;
-    }
-
-    /**
-     * This method add the files / directories listed in $p_filelist at the
-     * end of the existing archive. If the archive does not yet exists it
-     * is created.
-     * The $p_filelist parameter can be an array of string, each string
-     * representing a filename or a directory name with their path if
-     * needed. It can also be a single string with names separated by a
-     * single blank.
-     * The path indicated in $p_remove_dir will be removed from the
-     * memorized path of each file / directory listed when this path
-     * exists. By default nothing is removed (empty path '')
-     * The path indicated in $p_add_dir will be added at the beginning of
-     * the memorized path of each file / directory listed. However it can
-     * be set to empty ''. The adding of a path is done after the removing
-     * of path.
-     * The path add/remove ability enables the user to prepare an archive
-     * for extraction in a different path than the origin files are.
-     * If a file/dir is already in the archive it will only be added at the
-     * end of the archive. There is no update of the existing archived
-     * file/dir. However while extracting the archive, the last file will
-     * replace the first one. This results in a none optimization of the
-     * archive size.
-     * If a file/dir does not exist the file/dir is ignored. However an
-     * error text is send to PEAR error.
-     * If a file/dir is not readable the file/dir is ignored. However an
-     * error text is send to PEAR error.
-     *
-     * @param array $p_filelist An array of filenames and directory
-     *                             names, or a single string with names
-     *                             separated by a single blank space.
-     * @param string $p_add_dir A string which contains a path to be
-     *                             added to the memorized path of each
-     *                             element in the list.
-     * @param string $p_remove_dir A string which contains a path to be
-     *                             removed from the memorized path of
-     *                             each element in the list, when
-     *                             relevant.
-     *
-     * @return true on success, false on error.
-     */
-    public function addModify($p_filelist, $p_add_dir, $p_remove_dir = '')
-    {
-        $v_result = true;
-
-        if (!$this->_isArchive()) {
-            $v_result = $this->createModify(
-                $p_filelist,
-                $p_add_dir,
-                $p_remove_dir
-            );
-        } else {
-            if (is_array($p_filelist)) {
-                $v_list = $p_filelist;
-            } elseif (is_string($p_filelist)) {
-                $v_list = explode($this->_separator, $p_filelist);
-            } else {
-                $this->_error('Invalid file list');
-                return false;
-            }
-
-            $v_result = $this->_append($v_list, $p_add_dir, $p_remove_dir);
-        }
-
-        return $v_result;
-    }
-
-    /**
-     * This method add a single string as a file at the
-     * end of the existing archive. If the archive does not yet exists it
-     * is created.
-     *
-     * @param string $p_filename A string which contains the full
-     *                           filename path that will be associated
-     *                           with the string.
-     * @param string $p_string The content of the file added in
-     *                           the archive.
-     * @param bool|int $p_datetime A custom date/time (unix timestamp)
-     *                           for the file (optional).
-     * @param array $p_params An array of optional params:
-     *                               stamp => the datetime (replaces
-     *                                   datetime above if it exists)
-     *                               mode => the permissions on the
-     *                                   file (600 by default)
-     *                               type => is this a link?  See the
-     *                                   tar specification for details.
-     *                                   (default = regular file)
-     *                               uid => the user ID of the file
-     *                                   (default = 0 = root)
-     *                               gid => the group ID of the file
-     *                                   (default = 0 = root)
-     *
-     * @return true on success, false on error.
-     */
-    public function addString($p_filename, $p_string, $p_datetime = false, $p_params = array())
-    {
-        $p_stamp = @$p_params["stamp"] ? $p_params["stamp"] : ($p_datetime ? $p_datetime : time());
-        $p_mode = @$p_params["mode"] ? $p_params["mode"] : 0600;
-        $p_type = @$p_params["type"] ? $p_params["type"] : "";
-        $p_uid = @$p_params["uid"] ? $p_params["uid"] : "";
-        $p_gid = @$p_params["gid"] ? $p_params["gid"] : "";
-        $v_result = true;
-
-        if (!$this->_isArchive()) {
-            if (!$this->_openWrite()) {
-                return false;
-            }
-            $this->_close();
-        }
-
-        if (!$this->_openAppend()) {
-            return false;
-        }
-
-        // Need to check the get back to the temporary file ? ....
-        $v_result = $this->_addString($p_filename, $p_string, $p_datetime, $p_params);
-
-        $this->_writeFooter();
-
-        $this->_close();
-
-        return $v_result;
-    }
-
-    /**
-     * This method extract all the content of the archive in the directory
-     * indicated by $p_path. When relevant the memorized path of the
-     * files/dir can be modified by removing the $p_remove_path path at the
-     * beginning of the file/dir path.
-     * While extracting a file, if the directory path does not exists it is
-     * created.
-     * While extracting a file, if the file already exists it is replaced
-     * without looking for last modification date.
-     * While extracting a file, if the file already exists and is write
-     * protected, the extraction is aborted.
-     * While extracting a file, if a directory with the same name already
-     * exists, the extraction is aborted.
-     * While extracting a directory, if a file with the same name already
-     * exists, the extraction is aborted.
-     * While extracting a file/directory if the destination directory exist
-     * and is write protected, or does not exist but can not be created,
-     * the extraction is aborted.
-     * If after extraction an extracted file does not show the correct
-     * stored file size, the extraction is aborted.
-     * When the extraction is aborted, a PEAR error text is set and false
-     * is returned. However the result can be a partial extraction that may
-     * need to be manually cleaned.
-     *
-     * @param string $p_path The path of the directory where the
-     *                               files/dir need to by extracted.
-     * @param string $p_remove_path Part of the memorized path that can be
-     *                               removed if present at the beginning of
-     *                               the file/dir path.
-     * @param boolean $p_preserve Preserve user/group ownership of files
-     *
-     * @return boolean true on success, false on error.
-     * @see    extractList()
-     */
-    public function extractModify($p_path, $p_remove_path, $p_preserve = false)
-    {
-        $v_result = true;
-        $v_list_detail = array();
-
-        if ($v_result = $this->_openRead()) {
-            $v_result = $this->_extractList(
-                $p_path,
-                $v_list_detail,
-                "complete",
-                0,
-                $p_remove_path,
-                $p_preserve
-            );
-            $this->_close();
-        }
-
-        return $v_result;
-    }
-
-    /**
-     * This method extract from the archive one file identified by $p_filename.
-     * The return value is a string with the file content, or NULL on error.
-     *
-     * @param string $p_filename The path of the file to extract in a string.
-     *
-     * @return a string with the file content or NULL.
-     */
-    public function extractInString($p_filename)
-    {
-        if ($this->_openRead()) {
-            $v_result = $this->_extractInString($p_filename);
-            $this->_close();
-        } else {
-            $v_result = null;
-        }
-
-        return $v_result;
-    }
-
-    /**
-     * This method extract from the archive only the files indicated in the
-     * $p_filelist. These files are extracted in the current directory or
-     * in the directory indicated by the optional $p_path parameter.
-     * If indicated the $p_remove_path can be used in the same way as it is
-     * used in extractModify() method.
-     *
-     * @param array $p_filelist An array of filenames and directory names,
-     *                               or a single string with names separated
-     *                               by a single blank space.
-     * @param string $p_path The path of the directory where the
-     *                               files/dir need to by extracted.
-     * @param string $p_remove_path Part of the memorized path that can be
-     *                               removed if present at the beginning of
-     *                               the file/dir path.
-     * @param boolean $p_preserve Preserve user/group ownership of files
-     *
-     * @return true on success, false on error.
-     * @see    extractModify()
-     */
-    public function extractList($p_filelist, $p_path = '', $p_remove_path = '', $p_preserve = false)
-    {
-        $v_result = true;
-        $v_list_detail = array();
-
-        if (is_array($p_filelist)) {
-            $v_list = $p_filelist;
-        } elseif (is_string($p_filelist)) {
-            $v_list = explode($this->_separator, $p_filelist);
-        } else {
-            $this->_error('Invalid string list');
-            return false;
-        }
-
-        if ($v_result = $this->_openRead()) {
-            $v_result = $this->_extractList(
-                $p_path,
-                $v_list_detail,
-                "partial",
-                $v_list,
-                $p_remove_path,
-                $p_preserve
-            );
-            $this->_close();
-        }
-
-        return $v_result;
-    }
-
-    /**
-     * This method set specific attributes of the archive. It uses a variable
-     * list of parameters, in the format attribute code + attribute values :
-     * $arch->setAttribute(ARCHIVE_TAR_ATT_SEPARATOR, ',');
-     *
-     * @return true on success, false on error.
-     */
-    public function setAttribute()
-    {
-        $v_result = true;
-
-        // ----- Get the number of variable list of arguments
-        if (($v_size = func_num_args()) == 0) {
-            return true;
-        }
-
-        // ----- Get the arguments
-        $v_att_list = func_get_args();
-
-        // ----- Read the attributes
-        $i = 0;
-        while ($i < $v_size) {
-
-            // ----- Look for next option
-            switch ($v_att_list[$i]) {
-                // ----- Look for options that request a string value
-                case ARCHIVE_TAR_ATT_SEPARATOR :
-                    // ----- Check the number of parameters
-                    if (($i + 1) >= $v_size) {
-                        $this->_error(
-                            'Invalid number of parameters for '
-                            . 'attribute ARCHIVE_TAR_ATT_SEPARATOR'
-                        );
-                        return false;
-                    }
-
-                    // ----- Get the value
-                    $this->_separator = $v_att_list[$i + 1];
-                    $i++;
-                    break;
-
-                default :
-                    $this->_error('Unknown attribute code ' . $v_att_list[$i] . '');
-                    return false;
-            }
-
-            // ----- Next attribute
-            $i++;
-        }
-
-        return $v_result;
-    }
-
-    /**
-     * This method sets the regular expression for ignoring files and directories
-     * at import, for example:
-     * $arch->setIgnoreRegexp("#CVS|\.svn#");
-     *
-     * @param string $regexp regular expression defining which files or directories to ignore
-     */
-    public function setIgnoreRegexp($regexp)
-    {
-        $this->_ignore_regexp = $regexp;
-    }
-
-    /**
-     * This method sets the regular expression for ignoring all files and directories
-     * matching the filenames in the array list at import, for example:
-     * $arch->setIgnoreList(array('CVS', '.svn', 'bin/tool'));
-     *
-     * @param array $list a list of file or directory names to ignore
-     *
-     * @access public
-     */
-    public function setIgnoreList($list)
-    {
-        $regexp = str_replace(array('#', '.', '^', '$'), array('\#', '\.', '\^', '\$'), $list);
-        $regexp = '#/' . join('$|/', $list) . '#';
-        $this->setIgnoreRegexp($regexp);
-    }
-
-    /**
-     * @param string $p_message
-     */
-    public function _error($p_message)
-    {
-        $this->error_object = $this->raiseError($p_message);
-    }
-
-    /**
-     * @param string $p_message
-     */
-    public function _warning($p_message)
-    {
-        $this->error_object = $this->raiseError($p_message);
-    }
-
-    /**
-     * @param string $p_filename
-     * @return bool
-     */
-    public function _isArchive($p_filename = null)
-    {
-        if ($p_filename == null) {
-            $p_filename = $this->_tarname;
-        }
-        clearstatcache();
-        return @is_file($p_filename) && !@is_link($p_filename);
-    }
-
-    /**
-     * @return bool
-     */
-    public function _openWrite()
-    {
-        if ($this->_compress_type == 'gz' && function_exists('gzopen')) {
-            $this->_file = @gzopen($this->_tarname, "wb9");
-        } else {
-            if ($this->_compress_type == 'bz2' && function_exists('bzopen')) {
-                $this->_file = @bzopen($this->_tarname, "w");
-            } else {
-                if ($this->_compress_type == 'lzma2' && function_exists('xzopen')) {
-                    $this->_file = @xzopen($this->_tarname, 'w');
-                } else {
-                    if ($this->_compress_type == 'none') {
-                        $this->_file = @fopen($this->_tarname, "wb");
-                    } else {
-                        $this->_error(
-                            'Unknown or missing compression type ('
-                            . $this->_compress_type . ')'
-                        );
-                        return false;
-                    }
-                }
-            }
-        }
-
-        if ($this->_file == 0) {
-            $this->_error(
-                'Unable to open in write mode \''
-                . $this->_tarname . '\''
-            );
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function _openRead()
-    {
-        if (strtolower(substr($this->_tarname, 0, 7)) == 'http://') {
-
-            // ----- Look if a local copy need to be done
-            if ($this->_temp_tarname == '') {
-                $this->_temp_tarname = uniqid('tar') . '.tmp';
-                if (!$v_file_from = @fopen($this->_tarname, 'rb')) {
-                    $this->_error(
-                        'Unable to open in read mode \''
-                        . $this->_tarname . '\''
-                    );
-                    $this->_temp_tarname = '';
-                    return false;
-                }
-                if (!$v_file_to = @fopen($this->_temp_tarname, 'wb')) {
-                    $this->_error(
-                        'Unable to open in write mode \''
-                        . $this->_temp_tarname . '\''
-                    );
-                    $this->_temp_tarname = '';
-                    return false;
-                }
-                while ($v_data = @fread($v_file_from, 1024)) {
-                    @fwrite($v_file_to, $v_data);
-                }
-                @fclose($v_file_from);
-                @fclose($v_file_to);
-            }
-
-            // ----- File to open if the local copy
-            $v_filename = $this->_temp_tarname;
-        } else {
-            // ----- File to open if the normal Tar file
-
-            $v_filename = $this->_tarname;
-        }
-
-        if ($this->_compress_type == 'gz' && function_exists('gzopen')) {
-            $this->_file = @gzopen($v_filename, "rb");
-        } else {
-            if ($this->_compress_type == 'bz2' && function_exists('bzopen')) {
-                $this->_file = @bzopen($v_filename, "r");
-            } else {
-                if ($this->_compress_type == 'lzma2' && function_exists('xzopen')) {
-                    $this->_file = @xzopen($v_filename, "r");
-                } else {
-                    if ($this->_compress_type == 'none') {
-                        $this->_file = @fopen($v_filename, "rb");
-                    } else {
-                        $this->_error(
-                            'Unknown or missing compression type ('
-                            . $this->_compress_type . ')'
-                        );
-                        return false;
-                    }
-                }
-            }
-        }
-
-        if ($this->_file == 0) {
-            $this->_error('Unable to open in read mode \'' . $v_filename . '\'');
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function _openReadWrite()
-    {
-        if ($this->_compress_type == 'gz') {
-            $this->_file = @gzopen($this->_tarname, "r+b");
-        } else {
-            if ($this->_compress_type == 'bz2') {
-                $this->_error(
-                    'Unable to open bz2 in read/write mode \''
-                    . $this->_tarname . '\' (limitation of bz2 extension)'
-                );
-                return false;
-            } else {
-                if ($this->_compress_type == 'lzma2') {
-                    $this->_error(
-                        'Unable to open lzma2 in read/write mode \''
-                        . $this->_tarname . '\' (limitation of lzma2 extension)'
-                    );
-                    return false;
-                } else {
-                    if ($this->_compress_type == 'none') {
-                        $this->_file = @fopen($this->_tarname, "r+b");
-                    } else {
-                        $this->_error(
-                            'Unknown or missing compression type ('
-                            . $this->_compress_type . ')'
-                        );
-                        return false;
-                    }
-                }
-            }
-        }
-
-        if ($this->_file == 0) {
-            $this->_error(
-                'Unable to open in read/write mode \''
-                . $this->_tarname . '\''
-            );
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function _close()
-    {
-        //if (isset($this->_file)) {
-        if (is_resource($this->_file)) {
-            if ($this->_compress_type == 'gz') {
-                @gzclose($this->_file);
-            } else {
-                if ($this->_compress_type == 'bz2') {
-                    @bzclose($this->_file);
-                } else {
-                    if ($this->_compress_type == 'lzma2') {
-                        @xzclose($this->_file);
-                    } else {
-                        if ($this->_compress_type == 'none') {
-                            @fclose($this->_file);
-                        } else {
-                            $this->_error(
-                                'Unknown or missing compression type ('
-                                . $this->_compress_type . ')'
-                            );
-                        }
-                    }
-                }
-            }
-
-            $this->_file = 0;
-        }
-
-        // ----- Look if a local copy need to be erase
-        // Note that it might be interesting to keep the url for a time : ToDo
-        if ($this->_temp_tarname != '') {
-            @unlink($this->_temp_tarname);
-            $this->_temp_tarname = '';
-        }
-
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function _cleanFile()
-    {
-        $this->_close();
-
-        // ----- Look for a local copy
-        if ($this->_temp_tarname != '') {
-            // ----- Remove the local copy but not the remote tarname
-            @unlink($this->_temp_tarname);
-            $this->_temp_tarname = '';
-        } else {
-            // ----- Remove the local tarname file
-            @unlink($this->_tarname);
-        }
-        $this->_tarname = '';
-
-        return true;
-    }
-
-    /**
-     * @param mixed $p_binary_data
-     * @param integer $p_len
-     * @return bool
-     */
-    public function _writeBlock($p_binary_data, $p_len = null)
-    {
-        if (is_resource($this->_file)) {
-            if ($p_len === null) {
-                if ($this->_compress_type == 'gz') {
-                    @gzputs($this->_file, $p_binary_data);
-                } else {
-                    if ($this->_compress_type == 'bz2') {
-                        @bzwrite($this->_file, $p_binary_data);
-                    } else {
-                        if ($this->_compress_type == 'lzma2') {
-                            @xzwrite($this->_file, $p_binary_data);
-                        } else {
-                            if ($this->_compress_type == 'none') {
-                                @fputs($this->_file, $p_binary_data);
-                            } else {
-                                $this->_error(
-                                    'Unknown or missing compression type ('
-                                    . $this->_compress_type . ')'
-                                );
-                            }
-                        }
-                    }
-                }
-            } else {
-                if ($this->_compress_type == 'gz') {
-                    @gzputs($this->_file, $p_binary_data, $p_len);
-                } else {
-                    if ($this->_compress_type == 'bz2') {
-                        @bzwrite($this->_file, $p_binary_data, $p_len);
-                    } else {
-                        if ($this->_compress_type == 'lzma2') {
-                            @xzwrite($this->_file, $p_binary_data, $p_len);
-                        } else {
-                            if ($this->_compress_type == 'none') {
-                                @fputs($this->_file, $p_binary_data, $p_len);
-                            } else {
-                                $this->_error(
-                                    'Unknown or missing compression type ('
-                                    . $this->_compress_type . ')'
-                                );
-                            }
-                        }
-   <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4: */
-/**
- * PHP Version 5
- *
- * Copyright (c) 1997-2004 The PHP Group
- *
- * This source file is subject to version 3.0 of the PHP license,
- * that is bundled with this package in the file LICENSE, and is
- * available through the world-wide-web at the following url:
- * http://www.php.net/license/3_0.txt.
- * If you did not receive a copy of the PHP license and are unable to
- * obtain it through the world-wide-web, please send a note to
- * license@php.net so we can mail you a copy immediately.
- *
- * @category Console
- * @package  Console_Getopt
- * @author   Andrei Zmievski <andrei@php.net>
- * @license  http://www.php.net/license/3_0.txt PHP 3.0
- * @version  CVS: $Id$
- * @link     http://pear.php.net/package/Console_Getopt
- */
-
-require_once 'PEAR.php';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 /**
- * Command-line options parsing class.
+ * This is the place for API experiments and proposals.
+ * These API are NOT stable and subject to change. They are only available in the Insiders
+ * distribution and CANNOT be used in published extensions.
  *
- * @category Console
- * @package  Console_Getopt
- * @author   Andrei Zmievski <andrei@php.net>
- * @license  http://www.php.net/license/3_0.txt PHP 3.0
- * @link     http://pear.php.net/package/Console_Getopt
+ * To test these API in local environment:
+ * - Use Insiders release of VS Code.
+ * - Add `"enableProposedApi": true` to your package.json.
+ * - Copy this file to your project.
  */
-class Console_Getopt
-{
 
-    /**
-     * Parses the command-line options.
-     *
-     * The first parameter to this function should be the list of command-line
-     * arguments without the leading reference to the running program.
-     *
-     * The second parameter is a string of allowed short options. Each of the
-     * option letters can be followed by a colon ':' to specify that the option
-     * requires an argument, or a double colon '::' to specify that the option
-     * takes an optional argument.
-     *
-     * The third argument is an optional array of allowed long options. The
-     * leading '--' should not be included in the option name. Options that
-     * require an argument should be followed by '=', and options that take an
-     * option argument should be followed by '=='.
-     *
-     * The return value is an array of two elements: the list of parsed
-     * options and the list of non-option command-line arguments. Each entry in
-     * the list of parsed options is a pair of elements - the first one
-     * specifies the option, and the second one specifies the option argument,
-     * if there was one.
-     *
-     * Long and short options can be mixed.
-     *
-     * Most of the semantics of this function are based on GNU getopt_long().
-     *
-     * @param array  $args          an array of command-line arguments
-     * @param string $short_options specifies the list of allowed short options
-     * @param array  $long_options  specifies the list of allowed long options
-     * @param boolean $skip_unknown suppresses Console_Getopt: unrecognized option
-     *
-     * @return array two-element array containing the list of parsed options and
-     * the non-option arguments
-     */
-    public static function getopt2($args, $short_options, $long_options = null, $skip_unknown = false)
-    {
-        return Console_Getopt::doGetopt(2, $args, $short_options, $long_options, $skip_unknown);
-    }
+declare module 'vscode' {
 
-    /**
-     * This function expects $args to start with the script name (POSIX-style).
-     * Preserved for backwards compatibility.
-     *
-     * @param array  $args          an array of command-line arguments
-     * @param string $short_options specifies the list of allowed short options
-     * @param array  $long_options  specifies the list of allowed long options
-     *
-     * @see getopt2()
-     * @return array two-element array containing the list of parsed options and
-     * the non-option arguments
-     */
-    public static function getopt($args, $short_options, $long_options = null, $skip_unknown = false)
-    {
-        return Console_Getopt::doGetopt(1, $args, $short_options, $long_options, $skip_unknown);
-    }
+	//#region Joh - selection range provider
 
-    /**
-     * The actual implementation of the argument parsing code.
-     *
-     * @param int    $version       Version to use
-     * @param array  $args          an array of command-line arguments
-     * @param string $short_options specifies the list of allowed short options
-     * @param array  $long_options  specifies the list of allowed long options
-     * @$mode, $options = null)
-    {
-        $stack       = &$GLOBALS['_PEAR_error_handler_stack'];
-        $def_mode    = &$GLOBALS['_PEAR_default_error_mode'];
-        $def_options = &$GLOBALS['_PEAR_default_error_options'];
-        $stack[] = array($def_mode, $def_options);
-        switch ($mode) {
-            case PEAR_ERROR_EXCEPTION:
-            case PEAR_ERROR_RETURN:
-            case PEAR_ERROR_PRINT:
-            case PEAR_ERROR_TRIGGER:
-            case PEAR_ERROR_DIE:
-            case null:
-                $def_mode = $mode;
-                $def_options = $options;
-                break;
+	export class SelectionRangeKind {
 
-            case PEAR_ERROR_CALLBACK:
-                $def_mode = $mode;
-                // class/object method callback
-                if (is_callable($options)) {
-                    $def_options = $options;
-                } else {
-                    trigger_error("invalid error callback", E_USER_WARNING);
-                }
-                break;
+		/**
+		 * Empty Kind.
+		 */
+		static readonly Empty: SelectionRangeKind;
 
-            default:
-                trigger_error("invalid error mode", E_USER_WARNING);
-                break;
-        }
-        $sta
+		/**
+		 * The statment kind, its value is `statement`, possible extensions can be
+		 * `statement.if` etc
+		 */
+		static readonly Statement: SelectionRangeKind;
+
+		/**
+		 * The declaration kind, its value is `declaration`, possible extensions can be
+		 * `declaration.function`, `declaration.class` etc.
+		 */
+		static readonly Declaration: SelectionRangeKind;
+
+		readonly value: string;
+
+		private constructor(value: string);
+
+		append(value: string): SelectionRangeKind;
+	}
+
+	export class SelectionRange {
+		kind: SelectionRangeKind;
+		range: Range;
+		constructor(kind: SelectionRangeKind, range: Range);
+	}
+
+	export interface SelectionRangeProvider {
+		/**
+		 * Provide selection ranges starting at a given position. The first range must [contain](#Range.contains)
+		 * position and subsequent ranges must contain the previous range.
+		 * @param document
+		 * @param position
+		 * @param token
+		 */
+		provideSelectionRanges(document: TextDocument, position: Position, token: CancellationToken): ProviderResult<SelectionRange[]>;
+	}
+
+	export namespace languages {
+		export function registerSelectionRangeProvider(selector: DocumentSelector, provider: SelectionRangeProvider): Disposable;
+	}
+
+	//#endregion
+
+	//#region Joh - read/write in chunks
+
+	export interface FileSystemProvider {
+		open?(resource: Uri): number | Thenable<number>;
+		close?(fd: number): void | Thenable<void>;
+		read?(fd: number, pos: number, data: Uint8Array, offset: number, length: number): number | Thenable<number>;
+		write?(fd: number, pos: number, data: Uint8Array, offset: number, length: number): number | Thenable<number>;
+	}
+
+	//#endregion
+
+	//#region Rob: search provider
+
+	/**
+	 * The parameters of a query for text search.
+	 */
+	export interface TextSearchQuery {
+		/**
+		 * The text pattern to search for.
+		 */
+		pattern: string;
+
+		/**
+		 * Whether or not `pattern` should match multiple lines of text.
+		 */
+		isMultiline?: boolean;
+
+		/**
+		 * Whether or not `pattern` should be interpreted as a regular expression.
+		 */
+		isRegExp?: boolean;
+
+		/**
+		 * Whether or not the search should be case-sensitive.
+		 */
+		isCaseSensitive?: boolean;
+
+		/**
+		 * Whether or not to search for whole word matches only.
+		 */
+		isWordMatch?: boolean;
+	}
+
+	/**
+	 * A file glob pattern to match file paths against.
+	 * TODO@roblou - merge this with the GlobPattern docs/definition in vscode.d.ts.
+	 * @see [GlobPattern](#GlobPattern)
+	 */
+	export type GlobString = string;
+
+	/**
+	 * Options common to file and text search
+	 */
+	export interface SearchOptions {
+		/**
+		 * The root folder to search within.
+		 */
+		folder: Uri;
+
+		/**
+		 * Files that match an `includes` glob pattern should be included in the search.
+		 */
+		includes: GlobString[];
+
+		/**
+		 * Files that match an `excludes` glob pattern should be excluded from the search.
+		 */
+		excludes: GlobString[];
+
+		/**
+		 * Whether external files that exclude files, like .gitignore, should be respected.
+		 * See the vscode setting `"search.useIgnoreFiles"`.
+		 */
+		useIgnoreFiles: boolean;
+
+		/**
+		 * Whether symlinks should be followed while searching.
+		 * See the vscode setting `"search.followSymlinks"`.
+		 */
+		followSymlinks: boolean;
+
+		/**
+		 * Whether global files that exclude files, like .gitignore, should be respected.
+		 * See the vscode setting `"search.useGlobalIgnoreFiles"`.
+		 */
+		useGlobalIgnoreFiles: boolean;
+
+	}
+
+	/**
+	 * Options to specify the size of the result text preview.
+	 * These options don't affect the size of the match itself, just the amount of preview text.
+	 */
+	export interface TextSearchPreviewOptions {
+		/**
+		 * The maximum number of lines in the preview.
+		 * Only search providers that support multiline search will ever return more than one line in the match.
+		 */
+		matchLines: number;
+
+		/**
+		 * The maximum number of characters included per line.
+		 */
+		charsPerLine: number;
+	}
+
+	/**
+	 * Options that apply to text search.
+	 */
+	export interface TextSearchOptions extends SearchOptions {
+		/**
+		 * The maximum number of results to be returned.
+		 */
+		maxResults: number;
+
+		/**
+		 * Options to specify the size of the result text preview.
+		 */
+		previewOptions?: TextSearchPreviewOptions;
+
+		/**
+		 * Exclude files larger than `maxFileSize` in bytes.
+		 */
+		maxFileSize?: number;
+
+		/**
+		 * Interpret files using this encoding.
+		 * See the vscode setting `"files.encoding"`
+		 */
+		encoding?: string;
+
+		/**
+		 * Number of lines of context to include before each match.
+		 */
+		beforeContext?: number;
+
+		/**
+		 * Number of lines of context to include after each match.
+		 */
+		afterContext?: number;
+	}
+
+	/**
+	 * Information collected when text search is complete.
+	 */
+	export interface TextSearchComplete {
+		/**
+		 * Whether the search hit the limit on the maximum number of search results.
+		 * `maxResults` on [`TextSearchOptions`](#TextSearchOptions) specifies the max number of results.
+		 * - If exactly that number of matches exist, this should be false.
+		 * - If `maxResults` matches are returned and more exist, this should be true.
+		 * - If search hits an internal limit which is less than `maxResults`, this should be true.
+		 */
+		limitHit?: boolean;
+	}
+
+	/**
+	 * The parameters of a query for file search.
+	 */
+	export interface FileSearchQuery {
+		/**
+		 * The search pattern to match against file paths.
+		 */
+		pattern: string;
+	}
+
+	/**
+	 * Options that apply to file search.
+	 */
+	export interface FileSearchOptions extends SearchOptions {
+		/**
+		 * The maximum number of results to be returned.
+		 */
+		maxResults?: number;
+
+		/**
+		 * A CancellationToken that represents the session for this search query. If the provider chooses to, this object can be used as the key for a cache,
+		 * and searches with the same session object can search the same cache. When the token is cancelled, the session is complete and the cache can be cleared.
+		 */
+		session?: CancellationToken;
+	}
+
+	/**
+	 * Options that apply to requesting the file index.
+	 */
+	export interface FileIndexOptions extends SearchOptions { }
+
+	/**
+	 * A preview of the text result.
+	 */
+	export interface TextSearchMatchPreview {
+		/**
+		 * The matching lines of text, or a portion of the matching line that contains the match.
+		 */
+		text: string;
+
+		/**
+		 * The Range within `text` corresponding to the text of the match.
+		 * The number of matches must match the TextSearchMatch's range property.
+		 */
+		matches: Range | Range[];
+	}
+
+	/**
+	 * A match from a text search
+	 */
+	export interface TextSearchMatch {
+		/**
+		 * The uri for the matching document.
+		 */
+		uri: Uri;
+
+		/**
+		 * The range of the match within the document, or multiple ranges for multiple matches.
+		 */
+		ranges: Range | Range[];
+
+		/**
+		 * A preview of the text match.
+		 */
+		preview: TextSearchMatchPreview;
+	}
+
+	/**
+	 * A line of context surrounding a TextSearchMatch.
+	 */
+	export interface TextSearchContext {
+		/**
+		 * The uri for the matching document.
+		 */
+		uri: Uri;
+
+		/**
+		 * One line of text.
+		 * previewOptions.charsPerLine applies to this
+		 */
+		text: string;
+
+		/**
+		 * The line number of this line of context.
+		 */
+		lineNumber: number;
+	}
+
+	export type TextSearchResult = TextSearchMatch | TextSearchContext;
+
+	/**
+	 * A FileIndexProvider provides a list of files in the given folder. VS Code will filter that list for searching with quickopen or from other extensions.
+	 *
+	 * A FileIndexProvider is the simpler of two ways to implement file search in VS Code. Use a FileIndexProvider if you are able to provide a listing of all files
+	 * in a folder, and want VS Code to filter them according to the user's search query.
+	 *
+	 * The FileIndexProvider will be invoked once when quickopen is opened, and VS Code will filter the returned list. It will also be invoked when
+	 * `workspace.findFiles` is called.
+	 *
+	 * If a [`FileSearchProvider`](#FileSearchProvider) is registered for the scheme, that provider will be used instead.
+	 */
+	export interface FileIndexProvider {
+		/**
+		 * Provide the set of files in the folder.
+		 * @param options A set of options to consider while searching.
+		 * @param token A cancellation token.
+		 */
+		provideFileIndex(options: FileIndexOptions, token: CancellationToken): ProviderResult<Uri[]>;
+	}
+
+	/**
+	 * A FileSearchProvider provides search results for files in the given folder that match a query string. It can be invoked by quickopen or other extensions.
+	 *
+	 * A FileSearchProvider is the more powerful of two ways to implement file search in VS Code. Use a FileSearchProvider if you wish to search within a folder for
+	 * all files that match the user's query.
+	 *
+	 * The FileSearchProvider will be invoked on every keypress in quickopen. When `workspace.findFiles` is called, it will be invoked with an empty query string,
+	 * and in that case, every file in the folder should be returned.
+	 *
+	 * @see [FileIndexProvider](#FileIndexProvider)
+	 */
+	export interface FileSearchProvider {
+		/**
+		 * Provide the set of files that match a certain file path pattern.
+		 * @param query The parameters for this query.
+		 * @param options A set of options to consider while searching files.
+		 * @param progress A progress callback that must be invoked for all results.
+		 * @param token A cancellation token.
+		 */
+		provideFileSearchResults(query: FileSearchQuery, options: FileSearchOptions, token: CancellationToken): ProviderResult<Uri[]>;
+	}
+
+	/**
+	 * A TextSearchProvider provides search results for text results inside files in the workspace.
+	 */
+	export interface TextSearchProvider {
+		/**
+		 * Provide results that match the given text pattern.
+		 * @param query The parameters for this query.
+		 * @param options A set of options to consider while searching.
+		 * @param progress A progress callback that must be invoked for all results.
+		 * @param token A cancellation token.
+		 */
+		provideTextSearchResults(query: TextSearchQuery, options: TextSearchOptions, progress: Progress<TextSearchResult>, token: CancellationToken): ProviderResult<TextSearchComplete>;
+	}
+
+	/**
+	 * Options that can be set on a findTextInFiles search.
+	 */
+	export interface FindTextInFilesOptions {
+		/**
+		 * A [glob pattern](#GlobPattern) that defines the files to search for. The glob pattern
+		 * will be matched against the file paths of files relative to their workspace. Use a [relative pattern](#RelativePattern)
+		 * to restrict the search results to a [workspace folder](#WorkspaceFolder).
+		 */
+		include?: GlobPattern;
+
+		/**
+		 * A [glob pattern](#GlobPattern) that defines files and folders to exclude. The glob pattern
+		 * will be matched against the file paths of resulting matches relative to their workspace. When `undefined` only default excludes will
+		 * apply, when `null` no excludes will apply.
+		 */
+		exclude?: GlobPattern | null;
+
+		/**
+		 * The maximum number of results to search for
+		 */
+		maxResults?: number;
+
+		/**
+		 * Whether external files that exclude files, like .gitignore, should be respected.
+		 * See the vscode setting `"search.useIgnoreFiles"`.
+		 */
+		useIgnoreFiles?: boolean;
+
+		/**
+		 * Whether global files that exclude files, like .gitignore, should be respected.
+		 * See the vscode setting `"search.useGlobalIgnoreFiles"`.
+		 */
+		useGlobalIgnoreFiles?: boolean;
+
+		/**
+		 * Whether symlinks should be followed while searching.
+		 * See the vscode setting `"search.followSymlinks"`.
+		 */
+		followSymlinks?: boolean;
+
+		/**
+		 * Interpret files using this encoding.
+		 * See the vscode setting `"files.encoding"`
+		 */
+		encoding?: string;
+
+		/**
+		 * Options to specify the size of the result text preview.
+		 */
+		previewOptions?: TextSearchPreviewOptions;
+
+		/**
+		 * Number of lines of context to include before each match.
+		 */
+		beforeContext?: number;
+
+		/**
+		 * Number of lines of context to include after each match.
+		 */
+		afterContext?: number;
+	}
+
+	export namespace workspace {
+		/**
+		 * DEPRECATED
+		 */
+		export function registerSearchProvider(): Disposable;
+
+		/**
+		 * Register a file index provider.
+		 *
+		 * Only one provider can be registered per scheme.
+		 *
+		 * @param scheme The provider will be invoked for workspace folders that have this file scheme.
+		 * @param provider The provider.
+		 * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+		 */
+		export function registerFileIndexProvider(scheme: string, provider: FileIndexProvider): Disposable;
+
+		/**
+		 * Register a search provider.
+		 *
+		 * Only one provider can be registered per scheme.
+		 *
+		 * @param scheme The provider will be invoked for workspace folders that have this file scheme.
+		 * @param provider The provider.
+		 * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+		 */
+		export function registerFileSearchProvider(scheme: string, provider: FileSearchProvider): Disposable;
+
+		/**
+		 * Register a text search provider.
+		 *
+		 * Only one provider can be registered per scheme.
+		 *
+		 * @param scheme The provider will be invoked for workspace folders that have this file scheme.
+		 * @param provider The provider.
+		 * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+		 */
+		export function registerTextSearchProvider(scheme: string, provider: TextSearchProvider): Disposable;
+
+		/**
+		 * Search text in files across all [workspace folders](#workspace.workspaceFolders) in the workspace.
+		 * @param query The query parameters for the search - the search string, whether it's case-sensitive, or a regex, or matches whole words.
+		 * @param callback A callback, called for each result
+		 * @param token A token that can be used to signal cancellation to the underlying search engine.
+		 * @return A thenable that resolves when the search is complete.
+		 */
+		export function findTextInFiles(query: TextSearchQuery, callback: (result: TextSearchResult) => void, token?: CancellationToken): Thenable<TextSearchComplete>;
+
+		/**
+		 * Search text in files across all [workspace folders](#workspace.workspaceFolders) in the workspace.
+		 * @param query The query parameters for the search - the search string, whether it's case-sensitive, or a regex, or matches whole words.
+		 * @param options An optional set of query options. Include and exclude patterns, maxResults, etc.
+		 * @param callback A callback, called for each result
+		 * @param token A token that can be used to signal cancellation to the underlying search engine.
+		 * @return A thenable that resolves when the search is complete.
+		 */
+		export function findTextInFiles(query: TextSearchQuery, options: FindTextInFilesOptions, callback: (result: TextSearchResult) => void, token?: CancellationToken): Thenable<TextSearchComplete>;
+	}
+
+	//#endregion
+
+	//#region Joao: diff command
+
+	/**
+	 * The contiguous set of modified lines in a diff.
+	 */
+	export interface LineChange {
+		readonly originalStartLineNumber: number;
+		readonly originalEndLineNumber: number;
+		readonly modifiedStartLineNumber: number;
+		readonly modifiedEndLineNumber: number;
+	}
+
+	export namespace commands {
+
+		/**
+		 * Registers a diff information command that can be invoked via a keyboard shortcut,
+		 * a menu item, an action, or directly.
+		 *
+		 * Diff information commands are different from ordinary [commands](#commands.registerCommand) as
+		 * they only execute when there is an active diff editor when the command is called, and the diff
+		 * information has been computed. Also, the command handler of an editor command has access to
+		 * the diff information.
+		 *
+		 * @param command A unique identifier for the command.
+		 * @param callback A command handler function with access to the [diff information](#LineChange).
+		 * @param thisArg The `this` context used when invoking the handler function.
+		 * @return Disposable which unregisters this command on disposal.
+		 */
+		export function registerDiffInformationCommand(command: string, callback: (diff: LineChange[], ...args: any[]) => any, thisArg?: any): Disposable;
+	}
+
+	//#endregion
+
+	//#region Joh: decorations
+
+	//todo@joh -> make class
+	export interface DecorationData {
+		letter?: string;
+		title?: string;
+		color?: ThemeColor;
+		priority?: number;
+		bubble?: boolean;
+		source?: string; // hacky... we should remove it and use equality under the hood
+	}
+
+	export interface SourceControlResourceDecorations {
+		source?: string;
+		letter?: string;
+		color?: ThemeColor;
+	}
+
+	export interface DecorationProvider {
+		onDidChangeDecorations: Event<undefined | Uri | Uri[]>;
+		provideDecoration(uri: Uri, token: CancellationToken): ProviderResult<DecorationData>;
+	}
+
+	export namespace window {
+		export function registerDecorationProvider(provider: DecorationProvider): Disposable;
+	}
+
+	//#endregion
+
+	//#region André: debug
+
+	// deprecated
+
+	export interface DebugAdapterTracker {
+		// VS Code -> Debug Adapter
+		startDebugAdapter?(): void;
+		toDebugAdapter?(message: any): void;
+		stopDebugAdapter?(): void;
+
+		// Debug Adapter -> VS Code
+		fromDebugAdapter?(message: any): void;
+		debugAdapterError?(error: Error): void;
+		debugAdapterExit?(code?: number, signal?: string): void;
+	}
+
+	export interface DebugConfigurationProvider {
+		/**
+		 * Deprecated, use DebugAdapterDescriptorFactory.provideDebugAdapter instead.
+		 * @deprecated Use DebugAdapterDescriptorFactory.createDebugAdapterDescriptor instead
+		 */
+		debugAdapterExecutable?(folder: WorkspaceFolder | undefined, token?: CancellationToken): ProviderResult<DebugAdapterExecutable>;
+
+		/**
+		 * Deprecated, use DebugAdapterTrackerFactory.createDebugAdapterTracker instead.
+		 * @deprecated Use DebugAdapterTrackerFactory.createDebugAdapterTracker instead
+		 *
+		 * The optional method 'provideDebugAdapterTracker' is called at the start of a debug session to provide a tracker that gives access to the communication between VS Code and a Debug Adapter.
+		 * @param session The [debug session](#DebugSession) for which the tracker will be used.
+		 * @param token A cancellation token.
+		 */
+		provideDebugAdapterTracker?(session: DebugSession, workspaceFolder: WorkspaceFolder | undefined, config: DebugConfiguration, token?: CancellationToken): ProviderResult<DebugAdapterTracker>;
+	}
+
+	//#endregion
+
+	//#region Rob, Matt: logging
+
+	/**
+	 * The severity level of a log message
+	 */
+	export enum LogLevel {
+		Trace = 1,
+		Debug = 2,
+		Info = 3,
+		Warning = 4,
+		Error = 5,
+		Critical = 6,
+		Off = 7
+	}
+
+	export namespace env {
+		/**
+		 * Current logging level.
+		 */
+		export const logLevel: LogLevel;
+
+		/**
+		 * An [event](#Event) that fires when the log level has changed.
+		 */
+		export const onDidChangeLogLevel: Event<LogLevel>;
+	}
+
+	//#endregion
+
+	//#region Joao: SCM validation
+
+	/**
+	 * Represents the validation type of the Source Control input.
+	 */
+	export enum SourceControlInputBoxValidationType {
+
+		/**
+		 * Something not allowed by the rules of a language or other means.
+		 */
+		Error = 0,
+
+		/**
+		 * Something suspicious but allowed.
+		 */
+		Warning = 1,
+
+		/**
+		 * Something to inform about but not a problem.
+		 */
+		Information = 2
+	}
+
+	export interface SourceControlInputBoxValidation {
+
+		/**
+		 * The validation message to display.
+		 */
+		readonly message: string;
+
+		/**
+		 * The validation type.
+		 */
+		readonly type: SourceControlInputBoxValidationType;
+	}
+
+	/**
+	 * Represents the input box in the Source Control viewlet.
+	 */
+	export interface SourceControlInputBox {
+
+		/**
+		 * A validation function for the input box. It's possible to change
+		 * the validation provider simply by setting this property to a different function.
+		 */
+		validateInput?(value: string, cursorPosition: number): ProviderResult<SourceControlInputBoxValidation | undefined | null>;
+	}
+
+	//#endregion
+
+	//#region Joao: SCM selected provider
+
+	export interface SourceControl {
+
+		/**
+		 * Whether the source control is selected.
+		 */
+		readonly selected: boolean;
+
+		/**
+		 * An event signaling when the selection state changes.
+		 */
+		readonly onDidChangeSelection: Event<boolean>;
+	}
+
+	//#endregion
+
+	//#region Joao: SCM Input Box
+
+	/**
+	 * Represents the input box in the Source Control viewlet.
+	 */
+	export interface SourceControlInputBox {
+
+		/**
+			* Controls whether the input box is visible (default is `true`).
+			*/
+		visible: boolean;
+	}
+
+	//#endregion
+
+	//#region Comments
+	/**
+	 * Comments provider related APIs are still in early stages, they may be changed significantly during our API experiments.
+	 */
+
+	interface CommentInfo {
+		/**
+		 * All of the comment threads associated with the document.
+		 */
+		threads: CommentThread[];
+
+		/**
+		 * The ranges of the document which support commenting.
+		 */
+		commentingRanges?: Range[];
+
+		/**
+		 * If it's in draft mode or not
+		 */
+		inDraftMode?: boolean;
+	}
+
+	export enum CommentThreadCollapsibleState {
+		/**
+		 * Determines an item is collapsed
+		 */
+		Collapsed = 0,
+		/**
+		 * Determines an item is expanded
+		 */
+		Expanded = 1
+	}
+
+	/**
+	 * A collection of comments representing a conversation at a particular range in a document.
+	 */
+	interface CommentThread {
+		/**
+		 * A unique identifier of the comment thread.
+		 */
+		threadId: string;
+
+		/**
+		 * The uri of the document the thread has been created on.
+		 */
+		resource: Uri;
+
+		/**
+		 * The range the comment thread is located within the document. The thread icon will be shown
+		 * at the first line of the range.
+		 */
+		range: Range;
+
+		/**
+		 * The ordered comments of the thread.
+		 */
+		comments: Comment[];
+
+		/**
+		 * Whether the thread should be collapsed or expanded when opening the document. Defaults to Collapsed.
+		 */
+		collapsibleState?: CommentThreadCollapsibleState;
+	}
+
+	/**
+	 * A comment is displayed within the editor or the Comments Panel, depending on how it is provided.
+	 */
+	interface Comment {
+		/**
+		 * The id of the comment
+		 */
+		commentId: string;
+
+		/**
+		 * The text of the comment
+		 */
+		body: MarkdownString;
+
+		/**
+		 * The display name of the user who created the comment
+		 */
+		userName: string;
+
+		/**
+		 * The icon path for the user who created the comment
+		 */
+		userIconPath?: Uri;
+
+
+		/**
+		 * @deprecated Use userIconPath instead. The avatar src of the user who created the comment
+		 */
+		gravatar?: string;
+
+		/**
+		 * Whether the current user has permission to edit the comment.
+		 *
+		 * This will be treated as false if the comment is provided by a `WorkspaceCommentProvider`, or
+		 * if it is provided by a `DocumentCommentProvider` and  no `editComment` method is given.
+		 */
+		canEdit?: boolean;
+
+		/**
+		 * Whether the current user has permission to delete the comment.
+		 *
+		 * This will be treated as false if the comment is provided by a `WorkspaceCommentProvider`, or
+		 * if it is provided by a `DocumentCommentProvider` and  no `deleteComment` method is given.
+		 */
+		canDelete?: boolean;
+
+		/**
+		 * The command to be executed if the comment is selected in the Comments Panel
+		 */
+		command?: Command;
+
+		isDraft?: boolean;
+	}
+
+	export interface CommentThreadChangedEvent {
+		/**
+		 * Added comment threads.
+		 */
+		readonly added: CommentThread[];
+
+		/**
+		 * Removed comment threads.
+		 */
+		readonly removed: CommentThread[];
+
+		/**
+		 * Changed comment threads.
+		 */
+		readonly changed: CommentThread[];
+
+		/**
+		 * Changed draft mode
+		 */
+		readonly inDraftMode: boolean;
+	}
+
+	interface DocumentCommentProvider {
+		/**
+		 * Provide the commenting ranges and comment threads for the given document. The comments are displayed within the editor.
+		 */
+		provideDocumentComments(document: TextDocument, token: CancellationToken): Promise<CommentInfo>;
+
+		/**
+		 * Called when a user adds a new comment thread in the document at the specified range, with body text.
+		 */
+		createNewCommentThread(document: TextDocument, range: Range, text: string, token: CancellationToken): Promise<CommentThread>;
+
+		/**
+		 * Called when a user replies to a new comment thread in the document at the specified range, with body text.
+		 */
+		replyToCommentThread(document: TextDocument, range: Range, commentThread: CommentThread, text: string, token: CancellationToken): Promise<CommentThread>;
+
+		/**
+		 * Called when a user edits the comment body to the be new text.
+		 */
+		editComment?(document: TextDocument, comment: Comment, text: string, token: CancellationToken): Promise<void>;
+
+		/**
+		 * Called when a user deletes the comment.
+		 */
+		deleteComment?(document: TextDocument, comment: Comment, token: CancellationToken): Promise<void>;
+
+		startDraft?(document: TextDocument, token: CancellationToken): Promise<void>;
+		deleteDraft?(document: TextDocument, token: CancellationToken): Promise<void>;
+		finishDraft?(document: TextDocument, token: CancellationToken): Promise<void>;
+
+		startDraftLabel?: string;
+		deleteDraftLabel?: string;
+		finishDraftLabel?: string;
+
+		/**
+		 * Notify of updates to comment threads.
+		 */
+		onDidChangeCommentThreads: Event<CommentThreadChangedEvent>;
+	}
+
+	interface WorkspaceCommentProvider {
+		/**
+		 * Provide all comments for the workspace. Comments are shown within the comments panel. Selecting a comment
+		 * from the panel runs the comment's command.
+		 */
+		provideWorkspaceComments(token: CancellationToken): Promise<CommentThread[]>;
+
+		/**
+		 * Notify of updates to comment threads.
+		 */
+		onDidChangeCommentThreads: Event<CommentThreadChangedEvent>;
+	}
+
+	namespace workspace {
+		export function registerDocumentCommentProvider(provider: DocumentCommentProvider): Disposable;
+		export function registerWorkspaceCommentProvider(provider: WorkspaceCommentProvider): Disposable;
+	}
+	//#endregion
+
+	//#region Terminal
+
+	export interface Terminal {
+		/**
+		 * Fires when the terminal's pty slave pseudo-device is written to. In other words, this
+		 * provides access to the raw data stream from the process running within the terminal,
+		 * including VT sequences.
+		 */
+		onDidWriteData: Event<string>;
+	}
+
+	/**
+	 * Represents the dimensions of a terminal.
+	 */
+	export interface TerminalDimensions {
+		/**
+		 * The number of columns in the terminal.
+		 */
+		readonly columns: number;
+
+		/**
+		 * The number of rows in the terminal.
+		 */
+		readonly rows: number;
+	}
+
+	/**
+	 * Represents a terminal without a process where all interaction and output in the terminal is
+	 * controlled by an extension. This is similar to an output window but has the same VT sequence
+	 * compatility as the regular terminal.
+	 *
+	 * Note that an instance of [Terminal](#Terminal) will be created when a TerminalRenderer is
+	 * created with all its APIs available for use by extensions. When using the Terminal object
+	 * of a TerminalRenderer it acts just like normal only the extension that created the
+	 * TerminalRenderer essentially acts as a process. For example when an
+	 * [Terminal.onDidWriteData](#Terminal.onDidWriteData) listener is registered, that will fire
+	 * when [TerminalRenderer.write](#TerminalRenderer.write) is called. Similarly when
+	 * [Terminal.sendText](#Terminal.sendText) is triggered that will fire the
+	 * [TerminalRenderer.onDidAcceptInput](#TerminalRenderer.onDidAcceptInput) event.
+	 *
+	 * **Example:** Create a terminal renderer, show it and write hello world in red
+	 * ```typescript
+	 * const renderer = window.createTerminalRenderer('foo');
+	 * renderer.terminal.then(t => t.show());
+	 * renderer.write('\x1b[31mHello world\x1b[0m');
+	 * ```
+	 */
+	export interface TerminalRenderer {
+		/**
+		 * The name of the terminal, this will appear in the terminal selector.
+		 */
+		name: string;
+
+		/**
+		 * The dimensions of the terminal, the rows and columns of the terminal can only be set to
+		 * a value smaller than the maximum value, if this is undefined the terminal will auto fit
+		 * to the maximum value [maximumDimensions](TerminalRenderer.maximumDimensions).
+		 *
+		 * **Example:** Override the dimensions of a TerminalRenderer to 20 columns and 10 rows
+		 * ```typescript
+		 * terminalRenderer.dimensions = {
+		 *   cols: 20,
+		 *   rows: 10
+		 * };
+		 * ```
+		 */
+		dimensions: TerminalDimensions | undefined;
+
+		/**
+		 * The maximum dimensions of the terminal, this will be undefined immediately after a
+		 * terminal renderer is created and also until the terminal becomes visible in the UI.
+		 * Listen to [onDidChangeMaximumDimensions](TerminalRenderer.onDidChangeMaximumDimensions)
+		 * to get notified when this value changes.
+		 */
+		readonly maximumDimensions: TerminalDimensions | undefined;
+
+		/**
+		 * The corressponding [Terminal](#Terminal) for this TerminalRenderer.
+		 */
+		readonly terminal: Terminal;
+
+		/**
+		 * Write text to the terminal. Unlike [Terminal.sendText](#Terminal.sendText) which sends
+		 * text to the underlying _process_, this will write the text to the terminal itself.
+		 *
+		 * **Example:** Write red text to the terminal
+		 * ```typescript
+		 * terminalRenderer.write('\x1b[31mHello world\x1b[0m');
+		 * ```
+		 *
+		 * **Example:** Move the cursor to the 10th row and 20th column and write an asterisk
+		 * ```typescript
+		 * terminalRenderer.write('\x1b[10;20H*');
+		 * ```
+		 *
+		 * @param text The text to write.
+		 */
+		write(text: string): void;
+
+		/**
+		 * An event which fires on keystrokes in the terminal or when an extension calls
+		 * [Terminal.sendText](#Terminal.sendText). Keystrokes are converted into their
+		 * corresponding VT sequence representation.
+		 *
+		 * **Example:** Simulate interaction with the terminal from an outside extension or a
+		 * workbench command such as `workbench.action.terminal.runSelectedText`
+		 * ```typescript
+		 * const terminalRenderer = window.createTerminalRenderer('test');
+		 * terminalRenderer.onDidAcceptInput(data => {
+		 *   cosole.log(data); // 'Hello world'
+		 * });
+		 * terminalRenderer.terminal.then(t => t.sendText('Hello world'));
+		 * ```
+		 */
+		readonly onDidAcceptInput: Event<string>;
+
+		/**
+		 * An event which fires when the [maximum dimensions](#TerminalRenderer.maimumDimensions) of
+		 * the terminal renderer change.
+		 */
+		readonly onDidChangeMaximumDimensions: Event<TerminalDimensions>;
+	}
+
+	export namespace window {
+		/**
+		 * Create a [TerminalRenderer](#TerminalRenderer).
+		 *
+		 * @param name The name of the terminal renderer, this shows up in the terminal selector.
+		 */
+		export function createTerminalRenderer(name: string): TerminalRenderer;
+	}
+
+	//#endregion
+
+	//#region Joh -> exclusive document filters
+
+	export interface DocumentFilter {
+		exclusive?: boolean;
+	}
+
+	//#endregion
+
+	//#region mjbvz,joh: https://github.com/Microsoft/vscode/issues/43768
+	export interface FileRenameEvent {
+		readonly oldUri: Uri;
+		readonly newUri: Uri;
+	}
+
+	export interface FileWillRenameEvent {
+		readonly oldUri: Uri;
+		readonly newUri: Uri;
+		waitUntil(thenable: Thenable<WorkspaceEdit>): void;
+	}
+
+	export namespace workspace {
+		export const onWillRenameFile: Event<FileWillRenameEvent>;
+		export const onDidRenameFile: Event<FileRenameEvent>;
+	}
+	//#endregion
+
+	//#region Alex - OnEnter enhancement
+	export interface OnEnterRule {
+		/**
+		 * This rule will only execute if the text above the this line matches this regular expression.
+		 */
+		oneLineAboveText?: RegExp;
+	}
+	//#endregion
+
+	//#region Tree View
+
+	export interface TreeView<T> {
+
+		/**
+		 * An optional human-readable message that will be rendered in the view.
+		 */
+		message?: string | MarkdownString;
+
+	}
+
+	/**
+	 * Label describing the [Tree item](#TreeItem)
+	 */
+	export interface TreeItemLabel {
+
+		/**
+		 * A human-readable string describing the [Tree item](#TreeItem).
+		 */
+		label: string;
+
+		/**
+		 * Ranges in the label to highlight. A range is defined as a tuple of two number where the
+		 * first is the inclusive start index and the second the exclusive end index
+		 */
+		highlights?: [number, number][];
+
+	}
+
+	export class TreeItem2 extends TreeItem {
+		/**
+		 * Label describing this item. When `falsy`, it is derived from [resourceUri](#TreeItem.resourceUri).
+		 */
+		label?: string | TreeItemLabel | /* for compilation */ any;
+
+		/**
+		 * @param label Label describing this item
+		 * @param collapsibleState [TreeItemCollapsibleState](#TreeItemCollapsibleState) of the tree item. Default is [TreeItemCollapsibleState.None](#TreeItemCollapsibleState.None)
+		 */
+		constructor(label: TreeItemLabel, collapsibleState?: TreeItemCollapsibleState);
+	}
+	//#endregion
+
+	//#region Extension Context
+	export interface ExtensionContext {
+
+		/**
+		 * An absolute file path in which the extension can store gloabal state.
+		 * The directory might not exist on disk and creation is
+		 * up to the extension. However, the parent directory is guaranteed to be existent.
+		 *
+		 * Use [`globalState`](#ExtensionContext.globalState) to store key value data.
+		 */
+		globalStoragePath: string;
+
+	}
+	//#endregion
+}

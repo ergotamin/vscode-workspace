@@ -1,0 +1,10 @@
+ninja_required_version = 1.8.0
+builddir = /tmp
+
+cflags = -std=gnu++2a -Wall -Wno-deprecated -m64 -mtune=generic -fident -fdiagnostics-color=always -O2 -Ofast -pthread -I./../../include
+ldflags = -lcap -lm
+
+rule cc
+  command = g++ $cflags $in $ldflags -o $out
+
+build clone: cc clone.cc

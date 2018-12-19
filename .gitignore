@@ -1,4 +1,8 @@
 **/*
+!test
+!test/**
+!include
+!include/**
 !.vscode
 !.vscode/**
 !.eslintrc.js
