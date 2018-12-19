@@ -1,62 +1,37 @@
 {
-    "env": {
-        "vscodeIncludes": [
-            "${workspaceRoot}/**",
-            "${fileDirname}/**",
-            "./../include/**",
-            "./../include/**/**"
-        ],
-        "linuxIncludes": [
-            "/usr/include/**",
-            "/usr/local/include/**",
-            "/usr/lib/**",
-            "/usr/lib/gcc/x86_64-pc-linux-gnu/8.1.1/include/**",
-            "/usr/local/android/toolchain/sysroot/usr/include/**",
-            "/usr/lib/modules/4.19.4-artix1-1-ARTIX/build/include/**"
-        ],
-        "gccPath": "/usr/bin/x86_64-pc-linux-gnu-gcc",
-        "preprocessor": [
-            "-D__unix__=1",
-            "-D__unix=1",
-            "-D__linux__=1",
-            "-D__linux=1",
-            "-Dlinux=1",
-            "-D__gnu_linux__=1",
-            "-D__x86_64__=1",
-            "-D__x86_64=1",
-            "-D__amd64__=1",
-            "-D__amd64=1",
-            "-D__GNUC_PATCHLEVEL__=1",
-            "-D__GNUC_MINOR__=1",
-            "-D__GNUC__=8",
-            "-D__STDC_HOSTED=1",
-            "-D__STDC_VERSION__=201710L",
-            "-D__STDC_ISO_10646__=201706L",
-            "-D__VERSION__=\"8.1.1 20180531\"",
-            "-D__ELF__=1",
-            "-D__ORDER_LITTLE_ENDIAN__=1234",
-            "-D__BYTE_ORDER__=__ORDER_LITTLE_ENDIAN__"
-        ]
-    },
-    "configurations": [
-        {
-            "name": "MetaLinux",
-            "includePath": [
-                "${vscodeIncludes}",
-                "${linuxIncludes}"
-            ],
-            "defines": [
-                "${preprocessor}"
-            ],
-            "intelliSenseMode": "msvc-x64",
-            "compilerPath": "${gccPath}",
-            "cStandard": "c99",
-            "cppStandard": "c++11",
-            "browse": {
-                "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": "/tmp/vscodecpp.db"
-            }
-        }
+  "env": {
+    "vscodeIncludes": [
+      "${workspaceFolder}/include/**",
+      "${workspaceFolder}/**",
+      "${fileDirname}/include/**", 
+      "${fileDirname}/**"
     ],
-    "version": 4
+    "linuxIncludes": [
+      "/usr/include/**",
+      "/usr/local/include/**",
+      "/usr/lib/**",
+      "/usr/lib/gcc/${CPUTYPE}-${VENDOR}-${OSTYPE}/8.1.1/include/**",
+      "/usr/lib/modules/enabled/build/include/**"
+    ],
+    "gccPath": "/usr/bin/gcc",
+    "preprocessor": [
+      "-D_GNU_SOURCE"
+    ]  
+  },
+  "configurations": [
+    {
+      "name": "MetaLinux",
+      "includePath": ["${vscodeIncludes}", "${linuxIncludes}"],
+      "defines": ["${preprocessor}"],
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "${gccPath}",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "browse": {
+        "limitSymbolsToIncludedHeaders": true,
+        "databaseFilename": "/tmp/vscodecpp.db"
+      }
+    }
+  ],
+  "version": 4
 }
