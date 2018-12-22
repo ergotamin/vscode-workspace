@@ -18,12 +18,6 @@
   "engines": {
     "vscode": "^1.22.0"
   },
-  "eslintIgnore": [
-    "C/*",
-    "Java/*",
-    "script/python/*",
-    "script/shell/*"
-  ],
   "license": "MIT",
   "main": "%NULL%",
   "name": "vscode-workspace",
