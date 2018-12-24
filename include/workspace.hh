@@ -2,7 +2,7 @@
 #// (c) 2018 MIT License
 #// Marcel Bobolz
 #// <ergotamin.source@gmail.com>
-#include <ccconfig>
+#include <cconfig.hh>
 // system headers
 #include <cstdlib>
 #include <cstdio>
