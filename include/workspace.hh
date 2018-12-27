@@ -2,7 +2,12 @@
 #// (c) 2018 MIT License
 #// Marcel Bobolz
 #// <ergotamin.source@gmail.com>
-#include <cconfig.hh>
+static_assert(__GNUG__, "Your compiler is not supporting GnuExtensions !");
+#/**/ undef  /**/ __cplusplus
+#/**/ define /**/ __cplusplus       202012L
+#/**/ define /**/ __Begin           extern "C" {
+#/**/ define /**/ __End             }
+#pragma ident                       __BASE_FILE__
 // system headers
 #include <cstdlib>
 #include <cstdio>
@@ -10,6 +15,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <iostream>
+#include <fstream>
+#include <ostream>
 #include <climits>
 #include <csignal>
 #include <cassert>
@@ -19,8 +27,6 @@
 #include <tuple>
 #include <array>
 #include <vector>
-#include <iostream>
-#include <ostream>
 #include <utility>
 #include <new>
 #include <memory>

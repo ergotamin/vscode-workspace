@@ -3,8 +3,10 @@
     "vscodeIncludes": [
       "${workspaceFolder}/include/**",
       "${workspaceFolder}/**",
-      "${fileDirname}/include/**", 
-      "${fileDirname}/**"
+      "${fileDirname}/include/**",
+      "${fileDirname}/**",
+      "${fileDirname}/../include/**",
+      "${fileDirname}/../**"
     ],
     "linuxIncludes": [
       "/usr/include/**",
@@ -13,10 +15,8 @@
       "/usr/lib/gcc/${CPUTYPE}-${VENDOR}-${OSTYPE}/8.1.1/include/**",
       "/usr/lib/modules/enabled/build/include/**"
     ],
-    "gccPath": "/usr/bin/gcc",
-    "preprocessor": [
-      "-D_GNU_SOURCE"
-    ]  
+    "gccPath": "/usr/bin/g++",
+    "preprocessor": ["-D_GNU_SOURCE"]
   },
   "configurations": [
     {
