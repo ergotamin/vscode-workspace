@@ -37,3 +37,18 @@ static_assert(__GNUG__, "Your compiler is not supporting GnuExtensions !");
 #define __flat            __attribute__((flatten))
 #define __notnull(...)    __attribute__((nonnull ## __VA_ARGS__)))
 #define __section(label)  __attribute__((section(#label)))
+// colored cli-output
+#define fg(r, g, b)       "\x1b[38:2:" << r << ":" << g << ":" << b << "m"
+#define bg(r, g, b)       "\x1b[48:2:" << r << ":" << g << ":" << b << "m"
+#define sgr()             "\x1b(B\x1b[m"
+#define bold()            "\x1b[1m"
+#define smul()            "\x1b[4m"
+#define sitm()            "\x1b[3m"
+#define el1()             "\x1b[1K"
+#define up1()             "\x1b[A"
+
+#define pout(...) \
+    std::cout << __VA_ARGS__ << endl;
+
+#define perr(...) \
+    std::cerr << fg("255", "0", "0") << __VA_ARGS__ << sgr() << std::endl;
