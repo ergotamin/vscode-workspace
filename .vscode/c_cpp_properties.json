@@ -16,7 +16,7 @@
       "/usr/lib/modules/enabled/build/include/**"
     ],
     "gccPath": "/usr/bin/g++",
-    "preprocessor": ["-D_GNU_SOURCE"]
+    "preprocessor": ["-D_GNU_SOURCE", "-D__cplusplus=201812L"]
   },
   "configurations": [
     {

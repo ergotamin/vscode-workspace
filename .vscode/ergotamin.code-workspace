@@ -4,5 +4,7 @@
 			"path": "/root/work"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"git.ignoreLimitWarning": true
+	}
 }
