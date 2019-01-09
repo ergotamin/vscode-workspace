@@ -1,0 +1,191 @@
+{
+	"folders": [
+		{
+			"path": "/root/work"
+		}
+	],
+	"settings": {
+		"workbench.statusBar.visible": true,
+    "workbench.startupEditor": "none",
+    "workbench.sideBar.location": "left",
+    "workbench.settings.editor": "json",
+    "workbench.settings.openDefaultSettings": false,
+    "workbench.iconTheme": "vscode-icons",
+    "workbench.editor.labelFormat": "short",
+    "workbench.colorTheme": "DarkPixel - Theme",
+    "workbench.activityBar.visible": true,
+    "window.zoomLevel": 0,
+    "window.openFoldersInNewWindow": "default",
+    "window.menuBarVisibility": "visible",
+    "vsicons.dontShowNewVersionMessage": true,
+    "update.channel": "none",
+    "uncrustify.graphicalConfig": false,
+    "uncrustify.executablePath": "/usr/bin/uncrustify",
+    "uncrustify.configPath": "/root/work/.vscode/uncrustify.conf",
+    "todo-tree.tags": [
+      ">_",
+      "(note)",
+      "(important)",
+      "(todo)",
+      "(bug)"
+    ],
+    "todo-tree.showTagsFromOpenFilesOnly": true,
+    "todo-tree.rootFolder": "${workspaceFolder}",
+    "todo-tree.expanded": true,
+    "todo-tree.autoRefresh": true,
+    "terminal.integrated.shell.linux": "/usr/bin/zsh",
+    "terminal.integrated.rendererType": "dom",
+    "terminal.integrated.fontSize": 16,
+    "terminal.integrated.fontFamily": "Operator Mono Book",
+    "terminal.integrated.cursorStyle": "line",
+    "terminal.integrated.cursorBlinking": true,
+    "telemetry.enableTelemetry": false,
+    "telemetry.enableCrashReporter": false,
+    "shellformat.path": "/usr/local/bin/shfmt",
+    "shellformat.flag": "-i 0 -bn -ci",
+    "shellcheck.run": "onType",
+    "shellcheck.exclude": [
+      "SC2068",
+      "SC2059",
+      "SC2140",
+      "SC2086"
+    ],
+    "shellcheck.customArgs": [
+      "--format=tty"
+    ],
+    "python.linting.pylintEnabled": false,
+    "python.linting.pep8Path": "/sbin/pycodestyle",
+    "python.linting.pep8Enabled": true,
+    "python.formatting.provider": "autopep8",
+    "psi-header.templates": [
+      {
+        "template": [
+          " (c) <<year>> MIT License",
+          " Marcel Bobolz",
+          " <ergotamin.source@gmail.com>"
+        ],
+        "language": "*"
+      }
+    ],
+    "psi-header.lang-config": [
+      {
+        "prefix": "#//",
+        "language": "cpp",
+        "end": "#include <header.hh>",
+        "begin": "#/* !file.cc */"
+      },
+      {
+        "prefix": "#//",
+        "language": "c",
+        "end": "#include <header.h>",
+        "begin": "#/* !file.c */"
+      },
+      {
+        "prefix": ": ",
+        "language": "shellscript",
+        "end": ": ------------------------ :'",
+        "begin": ": -+- utf8 -+- shellscript :'",
+        "beforeHeader": [
+          "#!/bin/bash"
+        ],
+        "afterHeader": [
+          "declare ARGV=([0]=${0} ${*})"
+        ]
+      }
+    ],
+    "psi-header.changes-tracking": {
+      "isActive": false,
+      "autoHeader": "off"
+    },
+    "prettier.stylelintIntegration": true,
+    "prettier.parser": "babylon",
+    "prettier.eslintIntegration": true,
+    "npm-intellisense.showBuildInLibs": true,
+    "npm-intellisense.scanDevDependencies": true,
+    "npm-intellisense.recursivePackageJsonLookup": true,
+    "npm-intellisense.packageSubfoldersIntellisense": true,
+    "npm-intellisense.importQuotes": "'",
+    "npm-intellisense.importLinebreak": ";\r\n",
+    "npm-intellisense.importES6": false,
+    "npm-intellisense.importDeclarationType": "const",
+    "files.trimFinalNewlines": true,
+    "files.encoding": "utf8",
+    "files.autoSaveDelay": 10000,
+    "files.autoSave": "afterDelay",
+    "extensions.ignoreRecommendations": true,
+    "extensions.autoUpdate": false,
+    "explorer.sortOrder": "type",
+    "explorer.openEditors.visible": 3,
+    "explorer.decorations.badges": true,
+    "explorer.confirmDragAndDrop": false,
+    "explorer.confirmDelete": false,
+    "editor.wordWrapColumn": 160,
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.tabSize": 2,
+    "editor.tabCompletion": "on",
+    "editor.suggestFontSize": 12,
+    "editor.smoothScrolling": false,
+    "editor.showFoldingControls": "always",
+    "editor.scrollBeyondLastLine": true,
+    "editor.renderWhitespace": "none",
+    "editor.renderLineHighlight": "line",
+    "editor.quickSuggestions": {
+      "strings": false,
+      "other": true,
+      "comments": true
+    },
+    "editor.mouseWheelScrollSensitivity": 1.75,
+    "editor.minimap.showSlider": "always",
+    "editor.minimap.enabled": false,
+    "editor.matchBrackets": false,
+    "editor.lineHeight": 0,
+    "editor.letterSpacing": 0,
+    "editor.insertSpaces": true,
+    "editor.formatOnType": false,
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": false,
+    "editor.fontWeight": "500",
+    "editor.fontSize": 14,
+    "editor.fontLigatures": true,
+    "editor.fontFamily": "Operator Mono Light",
+    "editor.folding": true,
+    "editor.dragAndDrop": false,
+    "editor.detectIndentation": true,
+    "editor.cursorStyle": "line",
+    "editor.cursorBlinking": "smooth",
+    "editor.codeLens": false,
+    "editor.accessibilitySupport": "off",
+    "color-highlight.matchWords": true,
+    "color-highlight.markerType": "foreground",
+    "breadcrumbs.enabled": false,
+    "bracketPairColorizer.timeOut": 0,
+    "bracketPairColorizer.highlightActiveScope": true,
+    "bracketPairColorizer.consecutivePairColors": [
+      "()",
+      "[]",
+      "()",
+      "{}",
+      [
+        "#44AA99",
+        "#55BB99",
+        "#66CC99",
+        "#77DD99"
+      ],
+      "#FF0050"
+    ],
+    "bracketPairColorizer.colorMode": "Consecutive",
+    "bracketPairColorizer.activeScopeCSS": [
+      "border: 1px dotted #00FF00"
+    ],
+    "C_Cpp.workspaceParsingPriority": "highest",
+    "C_Cpp.navigation.length": 100,
+    "C_Cpp.intelliSenseEngineFallback": "Disabled",
+    "C_Cpp.intelliSenseEngine": "Default",
+    "C_Cpp.formatting": "Disabled",
+    "C_Cpp.exclusionPolicy": "checkFilesAndFolders",
+    "C_Cpp.errorSquiggles": "Disabled",
+    "C_Cpp.dimInactiveRegions": false,
+    "C_Cpp.autocomplete": "Default",
+    "C_Cpp.autoAddFileAssociations": false
+	}
+}
