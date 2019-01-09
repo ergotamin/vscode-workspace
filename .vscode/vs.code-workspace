@@ -1,12 +1,11 @@
 {
 	"folders": [
-		{
-			"path": "/root/work"
-		}
-	],
+    {
+      "path": "/root/work"
+    }
+  ],
 	"settings": {
 		"workbench.statusBar.visible": true,
-    "workbench.startupEditor": "none",
     "workbench.sideBar.location": "left",
     "workbench.settings.editor": "json",
     "workbench.settings.openDefaultSettings": false,
@@ -15,10 +14,7 @@
     "workbench.colorTheme": "DarkPixel - Theme",
     "workbench.activityBar.visible": true,
     "window.zoomLevel": 0,
-    "window.openFoldersInNewWindow": "default",
-    "window.menuBarVisibility": "visible",
     "vsicons.dontShowNewVersionMessage": true,
-    "update.channel": "none",
     "uncrustify.graphicalConfig": false,
     "uncrustify.executablePath": "/usr/bin/uncrustify",
     "uncrustify.configPath": "/root/work/.vscode/uncrustify.conf",
@@ -56,7 +52,7 @@
     "python.linting.pylintEnabled": false,
     "python.linting.pep8Path": "/sbin/pycodestyle",
     "python.linting.pep8Enabled": true,
-    "python.formatting.provider": "autopep8",
+    "python.formatting.provider": "pycodestyle",
     "psi-header.templates": [
       {
         "template": [
@@ -113,13 +109,12 @@
     "files.autoSaveDelay": 10000,
     "files.autoSave": "afterDelay",
     "extensions.ignoreRecommendations": true,
-    "extensions.autoUpdate": false,
     "explorer.sortOrder": "type",
     "explorer.openEditors.visible": 3,
     "explorer.decorations.badges": true,
     "explorer.confirmDragAndDrop": false,
     "explorer.confirmDelete": false,
-    "editor.wordWrapColumn": 160,
+    "editor.wordWrapColumn": 135,
     "editor.wordWrap": "wordWrapColumn",
     "editor.tabSize": 2,
     "editor.tabCompletion": "on",
@@ -186,6 +181,7 @@
     "C_Cpp.errorSquiggles": "Disabled",
     "C_Cpp.dimInactiveRegions": false,
     "C_Cpp.autocomplete": "Default",
-    "C_Cpp.autoAddFileAssociations": false
+    "C_Cpp.autoAddFileAssociations": false,
+    "python.pythonPath": "/sbin/python3.7"
 	}
 }
