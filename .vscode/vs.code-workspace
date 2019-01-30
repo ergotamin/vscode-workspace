@@ -16,6 +16,7 @@
     "window.zoomLevel": 0,
     "vsicons.dontShowNewVersionMessage": true,
     "uncrustify.graphicalConfig": false,
+    "uncrustify.debug": true,
     "uncrustify.executablePath": "/usr/bin/uncrustify",
     "uncrustify.configPath": "/root/work/.vscode/uncrustify.conf",
     "todo-tree.tags": [
@@ -23,7 +24,7 @@
       "(note)",
       "(important)",
       "(todo)",
-      "(bug)"
+      "(bug)" 
     ],
     "todo-tree.showTagsFromOpenFilesOnly": true,
     "todo-tree.rootFolder": "${workspaceFolder}",
@@ -49,10 +50,12 @@
     "shellcheck.customArgs": [
       "--format=tty"
     ],
+    "python.formatting.provider": "autopep8",
     "python.linting.pylintEnabled": false,
-    "python.linting.pep8Path": "/sbin/pycodestyle",
     "python.linting.pep8Enabled": true,
-    "python.formatting.provider": "pycodestyle",
+    "python.linting.pep8Args": [ "--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501"],
+    "python.linting.pep8Path": "/sbin/pycodestyle",
+    "python.formatting.autopep8Path": "/sbin/pycodestyle",
     "psi-header.templates": [
       {
         "template": [
@@ -172,6 +175,7 @@
     "bracketPairColorizer.activeScopeCSS": [
       "border: 1px dotted #00FF00"
     ],
+    "C_Cpp.loggingLevel": "Warning", 
     "C_Cpp.workspaceParsingPriority": "highest",
     "C_Cpp.navigation.length": 100,
     "C_Cpp.intelliSenseEngineFallback": "Disabled",
