@@ -1,11 +1,14 @@
 {
-	"folders": [
+  "folders": [
     {
       "path": "/root/work"
+    },
+    {
+      "path": "/root/download/autoconf"
     }
   ],
-	"settings": {
-		"workbench.statusBar.visible": true,
+  "settings": {
+    "workbench.statusBar.visible": true,
     "workbench.sideBar.location": "left",
     "workbench.settings.editor": "json",
     "workbench.settings.openDefaultSettings": false,
@@ -19,13 +22,7 @@
     "uncrustify.debug": true,
     "uncrustify.executablePath": "/usr/bin/uncrustify",
     "uncrustify.configPath": "/root/work/.vscode/uncrustify.conf",
-    "todo-tree.tags": [
-      ">_",
-      "(note)",
-      "(important)",
-      "(todo)",
-      "(bug)" 
-    ],
+    "todo-tree.tags": [">_", "(note)", "(important)", "(todo)", "(bug)"],
     "todo-tree.showTagsFromOpenFilesOnly": true,
     "todo-tree.rootFolder": "${workspaceFolder}",
     "todo-tree.expanded": true,
@@ -41,19 +38,14 @@
     "shellformat.path": "/usr/local/bin/shfmt",
     "shellformat.flag": "-i 0 -bn -ci",
     "shellcheck.run": "onType",
-    "shellcheck.exclude": [
-      "SC2068",
-      "SC2059",
-      "SC2140",
-      "SC2086"
-    ],
-    "shellcheck.customArgs": [
-      "--format=tty"
-    ],
+    "shellcheck.exclude": ["SC2068", "SC2059", "SC2140", "SC2086"],
+    "shellcheck.customArgs": ["--format=tty"],
     "python.formatting.provider": "autopep8",
     "python.linting.pylintEnabled": false,
     "python.linting.pep8Enabled": true,
-    "python.linting.pep8Args": [ "--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501"],
+    "python.linting.pep8Args": [
+      "--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501"
+    ],
     "python.linting.pep8Path": "/sbin/pycodestyle",
     "python.formatting.autopep8Path": "/sbin/pycodestyle",
     "psi-header.templates": [
@@ -84,12 +76,8 @@
         "language": "shellscript",
         "end": ": ------------------------ :'",
         "begin": ": -+- utf8 -+- shellscript :'",
-        "beforeHeader": [
-          "#!/bin/bash"
-        ],
-        "afterHeader": [
-          "declare ARGV=([0]=${0} ${*})"
-        ]
+        "beforeHeader": ["#!/bin/bash"],
+        "afterHeader": ["declare ARGV=([0]=${0} ${*})"]
       }
     ],
     "psi-header.changes-tracking": {
@@ -136,13 +124,13 @@
     "editor.minimap.showSlider": "always",
     "editor.minimap.enabled": false,
     "editor.matchBrackets": false,
-    "editor.lineHeight": 0, 
+    "editor.lineHeight": 0,
     "editor.letterSpacing": 0,
     "editor.insertSpaces": true,
     "editor.formatOnType": false,
     "editor.formatOnSave": true,
     "editor.formatOnPaste": false,
-    "editor.fontWeight": "normal", 
+    "editor.fontWeight": "normal",
     "editor.fontSize": 14,
     "editor.fontLigatures": true,
     "editor.fontFamily": "Operator Mono Light",
@@ -163,19 +151,12 @@
       "[]",
       "()",
       "{}",
-      [
-        "#44AA99",
-        "#55BB99",
-        "#66CC99",
-        "#77DD99"
-      ],
+      ["#44AA99", "#55BB99", "#66CC99", "#77DD99"],
       "#FF0050"
     ],
     "bracketPairColorizer.colorMode": "Consecutive",
-    "bracketPairColorizer.activeScopeCSS": [
-      "border: 1px dotted #00FF00"
-    ],
-    "C_Cpp.loggingLevel": "Warning", 
+    "bracketPairColorizer.activeScopeCSS": ["border: 1px dotted #00FF00"],
+    "C_Cpp.loggingLevel": "Warning",
     "C_Cpp.workspaceParsingPriority": "highest",
     "C_Cpp.navigation.length": 100,
     "C_Cpp.intelliSenseEngineFallback": "Disabled",
@@ -187,5 +168,5 @@
     "C_Cpp.autocomplete": "Default",
     "C_Cpp.autoAddFileAssociations": false,
     "python.pythonPath": "/sbin/python3.7"
-	}
+  }
 }

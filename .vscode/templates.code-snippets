@@ -1,18 +1,241 @@
 {
-	// Place your global snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
-	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
-	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
-	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
-	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
-	// Placeholders with the same ids are connected.
-	// Example:
-	// "Print to console": {
-	// 	"scope": "javascript,typescript",
-	// 	"prefix": "log",
-	// 	"body": [
-	// 		"console.log('$1');",
-	// 		"$2"
-	// 	],
-	// 	"description": "Log output to console"
-	// }
+  "Snippet": {
+    "scope": "jsonc",
+    "prefix": "=>snippet",
+    "body": [
+      "\"Template #${1:Number}\": {",
+      "\"scope\": \"${2:Language}\",",
+      "\"prefix\": \"=>template=>${3:Name}\",",
+      "\"body\": [",
+      "\"CODE\",",
+      "],",
+      "\"description\": \"$3 Template.\"",
+      "},"
+    ],
+    "description": "Template for a code-snippets."
+  },
+  "Template #1": {
+    "scope": "cpp",
+    "prefix": "=>template=>variable",
+    "body": [
+      "template<typename Type>",
+      "${1:static const} Type ${2:Identifier} $0;"
+    ],
+    "description": "Template for a variable."
+  },
+  "Template #2": {
+    "scope": "cpp",
+    "prefix": "=>template=>function",
+    "body": [
+      "template<typename ...ArgN,typename Arg1, typename ReturnType = void>",
+      "ReturnType ${1:Qualifier}(Arg1,ArgN... args)",
+      "{// Function: $1",
+      "\t$0;",
+      "}\n"
+    ],
+    "description": "Template for a function."
+  },
+  "Template #3": {
+    "scope": "cpp",
+    "prefix": "=>template=>object",
+    "body": [
+      "template<typename Type = void>",
+      "${1:Qualifier} ${2:Object} ${3:Inherits}",
+      "{// $1 $2 $3",
+      "\tpublic:",
+      "\t\texplicit $2(){ }",
+      "\t\tvirtual ~$2(){ }",
+      "\t\t$0;",
+      "}\n"
+    ],
+    "description": "Template for an object."
+  },
+  "Template #4": {
+    "scope": "cpp",
+    "prefix": "=>template=>includefile",
+    "body": [
+      "#pragma once",
+      "#// (c) 2018 MIT License",
+      "#// Marcel Bobolz",
+      "#// <ergotamin.source@gmail.com>",
+      "static_assert(__GNUG__, \"Your compiler is not supporting GnuExtensions !\");"
+    ],
+    "description": "IncludeGuard with static_assert."
+  },
+  "Template #5": {
+    "scope": "cpp",
+    "prefix": "=>template=>sourcefile",
+    "body": [
+      "#/* !${1:FileName}.cc */",
+      "#// (c) 2019 MIT License",
+      "#// Marcel Bobolz",
+      "#// <ergotamin.source@gmail.com>",
+      "",
+      "//",
+      "// Includes:",
+      "//",
+      "",
+      "#//${2:include <cstdio>}",
+      "#//${2:include <cstdlib>}",
+      "#//${2:include <cstddef>}",
+      "#//${2:include <iostream>}",
+      "#//${2:include <string>}",
+      "#//${2:include <vector>}",
+      "",
+      "${3:using namespace std;}",
+      "",
+      "int main(int argc, char **argv)",
+      "{",
+      "\t$0;",
+      "\treturn 0;",
+      "}\n"
+    ],
+    "description": "Blueprint Sourcefile."
+  },
+  "Template #6": {
+    "scope": "cpp",
+    "prefix": "=>template=>if",
+    "body": [
+      "",
+      "if( ${1:Condition} ){",
+      "${2:IfCase};",
+      "; //",
+      "} else {",
+      "${3:ElseCase};",
+      "; //",
+      "}",
+      "",
+      "$0;"
+    ],
+    "description": "Template for an object."
+  },
+  "Template #7": {
+    "scope": "cpp",
+    "prefix": "=>template=>for",
+    "body": [
+      "",
+      "for(${1:Initializer};${2:Condition};${3:IterExpression})",
+      "{",
+      ";",
+      ";",
+      "}",
+      ""
+    ],
+    "description": "Template for an object."
+  },
+  "Template #8": {
+    "scope": "cpp",
+    "prefix": "=>template=>read_file",
+    "body": [
+      "// requires:",
+      "// #include <iostream>",
+      "// #include <fstream>",
+      "// #include <string>",
+      "template<typename CharT>",
+      "std::basic_string<CharT> *read_file(const std::string& fname)",
+      "{//",
+      "//",
+      "std::ifstream stream(fname.c_str(), std::ios::in | std::ios::ate);",
+      "",
+      "if (!stream.is_open())",
+      "exit(1);",
+      "",
+      "std::streampos size = stream.tellg();",
+      "stream.seekg(0, std::ios::beg);",
+      "",
+      "if (!stream.good())",
+      "exit(1);",
+      "",
+      "static std::basic_string<CharT> *s = new std::basic_string<CharT>;",
+      "s->reserve(size);",
+      "stream.read(s->data(), size);",
+      "stream.close();",
+      "",
+      "return s;",
+      "}"
+    ],
+    "description": "Template for a function."
+  },
+  "Template #9": {
+    "scope": "cpp",
+    "prefix": "=>template=>bloated_function",
+    "body": [
+      "",
+      "template<typename Tx, typename ... Ts>",
+      "requires is_nonvoid<Tx>",
+      "__attribute__(()) [[using gnu: used, hot, nonnull, noinline]]",
+      "alignas(1 << va_args_alignof<size_t, Ts...>::operator&&(alignof(Tx)))",
+      "auto function(Tx x, Ts ... args) throw()",
+      "->decltype(std::make_tuple(args ...)) {",
+      "std::tuple<Ts...> Tuple = std::make_tuple(args ...);",
+      "",
+      "return Tuple;",
+      "}",
+      ""
+    ],
+    "description": "bloated_function Template."
+  },
+  "Template #10": {
+    "scope": "cpp",
+    "prefix": "=>template=>nonvoid",
+    "body": [
+      "",
+      "template<typename T>",
+      "const bool is_nonvoid = alignof(T) != 1",
+      "? (sizeof(T) != 1",
+      "? true",
+      ": false)",
+      ": false;",
+      ""
+    ],
+    "description": "nonvoid Template."
+  },
+  "Template #11": {
+    "scope": "cpp",
+    "prefix": "=>template=>is_typeof",
+    "body": [
+      "",
+      "template<typename T>",
+      "const bool is_typeof(std::type_index test_index){",
+      "const bool result = (std::type_index(typeid(T)) == test_index);",
+      "",
+      "return result;",
+      "}",
+      ""
+    ],
+    "description": "is_typeof Template."
+  },
+  "Template #12": {
+    "scope": "cpp",
+    "prefix": "=>template=>var_args_alignof",
+    "body": [
+      "",
+      "template<typename T1, typename ... Ts>",
+      "struct va_args_alignof {",
+      "explicit va_args_alignof()",
+      "{",
+      "}",
+      "T1 const operator&&(const T1 &second)",
+      "{",
+      "if (is_typeof<bool>(std::type_index(typeid(T1))))",
+      "return second;",
+      "",
+      "if (is_typeof<unsigned long>(std::type_index(typeid(T1)))",
+      "|| is_typeof<long>(std::type_index(typeid(T1)))",
+      "|| is_typeof<unsigned int>(std::type_index(typeid(T1)))",
+      "|| is_typeof<int>(std::type_index(typeid(T1)))",
+      "|| is_typeof<unsigned short>(std::type_index(typeid(T1)))",
+      "|| is_typeof<short>(std::type_index(typeid(T1)))) {",
+      "static T1 alignof_ = second;",
+      "T1 i[sizeof...(Ts)] [[gnu::unused]] = { (alignof_+= alignof(Ts))... };",
+      "return alignof_;",
+      "} else {",
+      "exit(EXIT_FAILURE);",
+      "}",
+      "}",
+      "};",
+      ""
+    ],
+    "description": "var_args_alignof Template."
+  }
 }
