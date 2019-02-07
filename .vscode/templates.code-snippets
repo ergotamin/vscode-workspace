@@ -237,5 +237,11 @@
       ""
     ],
     "description": "var_args_alignof Template."
+  },
+  "Template #13": {
+    "scope": "python",
+    "prefix": "=>template=>__doc__",
+    "body": ["\"\"\"", " DOCSTRING ", "\"\"\""],
+    "description": "docstring Template."
   }
 }
