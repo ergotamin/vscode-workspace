@@ -15,7 +15,7 @@
     "description": "Template for a code-snippets."
   },
   "Template #1": {
-    "scope": "cpp",
+    "scope": "cpp,ragel",
     "prefix": "=>template=>variable",
     "body": [
       "template<typename Type>",
@@ -24,7 +24,7 @@
     "description": "Template for a variable."
   },
   "Template #2": {
-    "scope": "cpp",
+    "scope": "cpp,ragel",
     "prefix": "=>template=>function",
     "body": [
       "template<typename ...ArgN,typename Arg1, typename ReturnType = void>",
@@ -36,7 +36,7 @@
     "description": "Template for a function."
   },
   "Template #3": {
-    "scope": "cpp",
+    "scope": "cpp,ragel",
     "prefix": "=>template=>object",
     "body": [
       "template<typename Type = void>",
@@ -51,7 +51,7 @@
     "description": "Template for an object."
   },
   "Template #4": {
-    "scope": "cpp",
+    "scope": "cpp,ragel",
     "prefix": "=>template=>includefile",
     "body": [
       "#pragma once",
@@ -63,7 +63,7 @@
     "description": "IncludeGuard with static_assert."
   },
   "Template #5": {
-    "scope": "cpp",
+    "scope": "cpp,ragel",
     "prefix": "=>template=>sourcefile",
     "body": [
       "#/* !${1:FileName}.cc */",
@@ -93,7 +93,7 @@
     "description": "Blueprint Sourcefile."
   },
   "Template #6": {
-    "scope": "cpp",
+    "scope": "cpp,ragel",
     "prefix": "=>template=>if",
     "body": [
       "",
@@ -110,7 +110,7 @@
     "description": "Template for an object."
   },
   "Template #7": {
-    "scope": "cpp",
+    "scope": "cpp,ragel",
     "prefix": "=>template=>for",
     "body": [
       "",
@@ -124,7 +124,7 @@
     "description": "Template for an object."
   },
   "Template #8": {
-    "scope": "cpp",
+    "scope": "cpp,ragel",
     "prefix": "=>template=>read_file",
     "body": [
       "// requires:",
@@ -157,7 +157,7 @@
     "description": "Template for a function."
   },
   "Template #9": {
-    "scope": "cpp",
+    "scope": "cpp,ragel",
     "prefix": "=>template=>bloated_function",
     "body": [
       "",
@@ -176,7 +176,7 @@
     "description": "bloated_function Template."
   },
   "Template #10": {
-    "scope": "cpp",
+    "scope": "cpp,ragel",
     "prefix": "=>template=>nonvoid",
     "body": [
       "",
@@ -191,7 +191,7 @@
     "description": "nonvoid Template."
   },
   "Template #11": {
-    "scope": "cpp",
+    "scope": "cpp,ragel",
     "prefix": "=>template=>is_typeof",
     "body": [
       "",
@@ -206,7 +206,7 @@
     "description": "is_typeof Template."
   },
   "Template #12": {
-    "scope": "cpp",
+    "scope": "cpp,ragel",
     "prefix": "=>template=>var_args_alignof",
     "body": [
       "",

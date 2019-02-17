@@ -7,6 +7,39 @@
 #include <cstring>
 #include <unistd.h>
 
+#include <cstdlib>
+#include <cstdio>
+#include <cstddef>
+#include <unistd.h>
+#include <fcntl.h>
+#include <cstring>
+#include <mutex>
+//
+static std::mutex mtx;
+//
+template<typename CharT>
+static char *cat(const CharT *cat)
+{
+    return strdup(cat);
+}
+//
+template<typename CharT, typename ... Vargs>
+static char *cat(const CharT *c, const CharT *a, Vargs... targs)
+{
+    static char *shelf = strdup(c);
+
+    if (0 != *a) {
+        realloc((void *)shelf, strlen(a) + 64);
+        strcat(shelf, "\x20");
+        strcat(shelf, a);
+        strcat(shelf, "\x20");
+        mtx.try_lock();
+        strcat(shelf, cat(targs ...));
+        mtx.unlock();
+    }
+
+    return cat((const char *)shelf);
+}
 
 extern const char *__progname;
 
