@@ -1,38 +1,28 @@
 {
-  "env": {
-    "vscodeIncludes": [
-      "${workspaceFolder}/include/**",
-      "${workspaceFolder}/**",
-      "${workspaceFolder}",
-      "${fileDirname}/include/**",
-      "${fileDirname}/**",
-      "${fileDirname}",
-      "${fileDirname}/../include/**",
-      "${fileDirname}/../**"
-    ],
-    "linuxIncludes": [
-      "/usr/include/**",
-      "/usr/local/include/**",
-      "/usr/lib/**",
-      "/usr/lib/gcc/${CPUTYPE}-${VENDOR}-${OSTYPE}/8.1.1/include/**",
-      "/usr/lib/modules/enabled/build/include/**"
-    ],
-    "gccPath": "/usr/bin/g++",
-    "preprocessor": ["-D_GNU_SOURCE", "-D__cplusplus=201812L"]
-  },
   "configurations": [
     {
-      "name": "MetaLinux",
-      "includePath": ["${vscodeIncludes}", "${linuxIncludes}"],
-      "defines": ["${preprocessor}"],
-      "intelliSenseMode": "gcc-x64",
-      "compilerPath": "${gccPath}",
-      "cStandard": "c11",
-      "cppStandard": "c++17",
+      "name": "Linux",
+      "C_Cpp.default.browse.databaseFilename": "/tmp/.vscode/cxxtags.db",
+      "C_Cpp.default.browse.limitSymbolsToIncludedHeaders": true,
       "browse": {
-        "limitSymbolsToIncludedHeaders": true,
-        "databaseFilename": "/tmp/vscodecpp.db"
-      }
+        "databaseFilename": "/tmp/vscodecpp.db",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "cStandard": "c99",
+      "cppStandard": "${default}",
+      "compilerPath": "/usr/bin/vscxx",
+      "defines": ["_GNU_SOURCE", "__cplusplus=201812L", "__intellisense"],
+      "includePath": [
+        "**",
+        "include/**",
+        "../**",
+        "../include/**",
+        "${workspaceFolder}/.vscode/**",
+        "/usr/lib/gcc/**",
+        "/usr/include/**",
+        "/usr/local/include/**"
+      ],
+      "intelliSenseMode": "gcc-x64"
     }
   ],
   "version": 4

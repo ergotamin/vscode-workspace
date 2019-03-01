@@ -18,7 +18,7 @@
     "uncrustify.graphicalConfig": false,
     "uncrustify.debug": false,
     "uncrustify.executablePath": "/usr/bin/uncrustify",
-    "uncrustify.configPath": "/root/work/.vscode/uncrustify.conf",
+    "uncrustify.configPath": ".vscode/uncrustify/uncrustify.conf",
     "terminal.integrated.shell.linux": "/usr/bin/zsh",
     "terminal.integrated.rendererType": "dom",
     "terminal.integrated.fontSize": 14,
@@ -34,7 +34,7 @@
     "shellcheck.customArgs": ["--format=tty"],
     "python.formatting.provider": "autopep8",
     "python.workspaceSymbols.enabled": true,
-    "python.workspaceSymbols.tagFilePath": "/root/work/.vscode/pytags",
+    "python.workspaceSymbols.tagFilePath": "/tmp/.vscode/pytags",
     "python.workspaceSymbols.rebuildOnFileSave": false,
     "python.workspaceSymbols.rebuildOnStart": false,
     "python.dataScience.enabled": true,
@@ -47,42 +47,6 @@
     ],
     "python.linting.pep8Path": "/sbin/pycodestyle",
     "python.formatting.autopep8Path": "/sbin/autopep8",
-    "psi-header.templates": [
-      {
-        "template": [
-          " (c) <<year>> MIT License",
-          " Marcel Bobolz",
-          " <ergotamin.source@gmail.com>"
-        ],
-        "language": "*"
-      }
-    ],
-    "psi-header.lang-config": [
-      {
-        "prefix": "#//",
-        "language": "cpp",
-        "end": "#include <header.hh>",
-        "begin": "#/* !file.cc */"
-      },
-      {
-        "prefix": "#//",
-        "language": "c",
-        "end": "#include <header.h>",
-        "begin": "#/* !file.c */"
-      },
-      {
-        "prefix": ": ",
-        "language": "shellscript",
-        "end": ": ------------------------ :'",
-        "begin": ": -+- utf8 -+- shellscript :'",
-        "beforeHeader": ["#!/bin/bash"],
-        "afterHeader": ["declare ARGV=([0]=${0} ${*})"]
-      }
-    ],
-    "psi-header.changes-tracking": {
-      "isActive": false,
-      "autoHeader": "off"
-    },
     "prettier.stylelintIntegration": true,
     "prettier.parser": "babylon",
     "prettier.eslintIntegration": true,
@@ -159,9 +123,9 @@
     ],
     "bracketPairColorizer.colorMode": "Consecutive",
     "bracketPairColorizer.activeScopeCSS": ["border: 1px dotted #00FF00"],
-    "C_Cpp.loggingLevel": "Warning",
+    "C_Cpp.loggingLevel": "None",
     "C_Cpp.workspaceParsingPriority": "highest",
-    "C_Cpp.navigation.length": 100,
+    "C_Cpp.navigation.length": 75,
     "C_Cpp.intelliSenseEngineFallback": "Disabled",
     "C_Cpp.intelliSenseEngine": "Default",
     "C_Cpp.formatting": "Disabled",
@@ -169,6 +133,7 @@
     "C_Cpp.errorSquiggles": "Disabled",
     "C_Cpp.dimInactiveRegions": false,
     "C_Cpp.autocomplete": "Default",
-    "C_Cpp.autoAddFileAssociations": false
+    "C_Cpp.autoAddFileAssociations": false,
+    "C_Cpp.preferredPathSeparator": "Forward Slash"
   }
 }

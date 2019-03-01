@@ -1,0 +1,11 @@
+{
+  "$schema": "https://e-p-s.org/thekeys/tasks.json.schema",
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Check Intellisense properties",
+      "type": "shell",
+      "command": "echo /usr/lib/gcc/${CPUTYPE}-${VENDOR}-${OSTYPE}/8.1.1/plugin/include"
+    }
+  ]
+}
