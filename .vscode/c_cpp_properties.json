@@ -10,8 +10,8 @@
       },
       "cStandard": "c99",
       "cppStandard": "${default}",
-      "compilerPath": "/usr/bin/vscxx",
-      "defines": ["_GNU_SOURCE", "__cplusplus=201812L", "__intellisense"],
+      "compilerPath": "/usr/bin/gcc-code",
+      "defines": ["_GNU_SOURCE", "__cplusplus=201812L", "__cpp_intellisense"],
       "includePath": [
         "**",
         "include/**",
