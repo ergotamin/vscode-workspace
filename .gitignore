@@ -11,5 +11,6 @@
 !tslint.json
 !README.md
 !LICENSE
+!sandbox
 .vscode/pytags
 package-lock.json
