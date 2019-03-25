@@ -5,6 +5,7 @@
 !include/**
 !.vscode
 !.vscode/**
+!sandbox
 !sandbox/**
 !.eslintrc.js
 !.gitignore
