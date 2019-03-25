@@ -5,12 +5,12 @@
 !include/**
 !.vscode
 !.vscode/**
+!sandbox/**
 !.eslintrc.js
 !.gitignore
 !package.json
 !tslint.json
 !README.md
 !LICENSE
-!sandbox
 .vscode/pytags
 package-lock.json
