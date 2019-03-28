@@ -2,6 +2,9 @@
   "folders": [
     {
       "path": "/root/work"
+    },
+    {
+      "path": "/usr/local/bin"
     }
   ],
   "settings": {
