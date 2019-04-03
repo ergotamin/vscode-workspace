@@ -3,14 +3,12 @@ export TERM='linux'
 typeset -xg \
     BUSYBOX="$0:$(grep --line-number -ie '^-BBblob-$' $0 | cut -d':' -f1)"
 #
-function get_initramfs() {
+function make_initramfs() {
     typeset -i \
         HERE=${BUSYBOX##*:}
     typeset \
         SELF=${BUSYBOX%%:*}
-    typeset \
-        CPIO="initramfs-busybox.img"
-    mkdir -m0755 -p $PWD/initramfs \
+    mkdir -m0755 -p "$PWD"/initramfs \
         &>/dev/zero \
         || exit $?
     pushd initramfs \
@@ -19,7 +17,7 @@ function get_initramfs() {
     mkdir -m0755 -p {bin,sbin,etc,proc,sys,usr/{bin,sbin}} \
         &>/dev/zero \
         || exit $?
-    tail -n+$((HERE + 1)) $SELF \
+    tail -n+$((HERE + 1)) "$SELF" \
         | base64 -d - \
         | xz -T0 -c -d - \
         | tar -xf -
@@ -36,13 +34,32 @@ function get_initramfs() {
     ' >>init
     find . -print0 \
         | cpio --null -o --format=newc \
-        | gzip -9 >../$CPIO \
+        | gzip -9 >../"$RAMFS" \
             &>/dev/zero \
         || exit 1
     popd \
         &>/dev/zero \
         || exit $?
-    printf "$PWD/$CPIO"
+    RAMFS="$PWD/$RAMFS"
+    return $?
+}
+#
+function make_blockdevice() {
+    qemu-img create "$VDD" 75M \
+        &>/dev/zero \
+        || exit $?
+    echo 'start=2048, type=83' \
+        | sfdisk "$VDD" \
+            &>/dev/zero \
+        || exit $?
+    local LOOP="$(losetup --show -P $VDD -f || exit $?)"
+    mkfs.xfs $LOOP"p1" \
+        &>/dev/zero \
+        || exit $?
+    losetup -D \
+        &>/dev/zero \
+        || exit $?
+    VDD="$PWD/$VDD"
     return $?
 }
 #
@@ -55,7 +72,9 @@ fi
 if [[ $# -eq 1 ]] \
     && [[ $(file -b $1 | grep -coe 'kernel' | cut -d' ' -f1) -ne 0 ]]; then
     #
-    typeset KERNEL=$(realpath $1)
+    typeset -gx KERNEL=$(realpath $1)
+    typeset -gx RAMFS="initramfs-busybox.img"
+    typeset -gx VDD="vdd"
     #
     typeset TOP=$(mktemp -q -d "$PWD/.qemu_ktestXXXXXX" || exit $?)
     #
@@ -67,32 +86,34 @@ if [[ $# -eq 1 ]] \
         &>/dev/zero \
         || exit $?
     #
-    echo "building initramfs..."
+    echo -e "preparing initramfs & blockdevice..."
     #
-    typeset RAMFS=$(get_initramfs) \
-        2>/dev/zero \
-        || exit 1
+    make_initramfs || exit 1
     #
-    echo "finished initramfs..."
+    make_blockdevice || exit 1
+    #
+    echo -n "finished !"
     #
     popd \
         &>/dev/zero \
         || exit 1
     #
-    printf "Use [CTRL-A]+[X] to exit\n"
-    printf "__BOOTING__\n"
-    printf "    <3>\n"
+    echo "Use [CTRL-A]+[X] to exit"
+    echo "    <3>"
     sleep 1
-    printf "    <2>\n"
+    echo "    <2>"
     sleep 1
-    printf "    <1>\n"
+    echo "    <1>"
     sleep 1
-    echo   "     ..."
+    echo "    <0>"
     qemu-system-"$(uname -m)" \
         -kernel $KERNEL \
         -initrd $RAMFS \
-        -nographic -append "console=ttyS0" \
-        -enable-kvm
+        -hda $VDD \
+        -append "root=/dev/sda1 console=ttyS0" \
+        -enable-kvm \
+        -cpu host \
+        -nographic
     exit $?
 else
     echo "Usage: $(basename $0) KERNEL"
