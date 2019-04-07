@@ -1,29 +1,33 @@
 {
-  "configurations": [
-    {
-      "name": "Linux",
-      "C_Cpp.default.browse.databaseFilename": "/tmp/.vscode/cxxtags.db",
-      "C_Cpp.default.browse.limitSymbolsToIncludedHeaders": true,
-      "browse": {
-        "databaseFilename": "/tmp/vscodecpp.db",
-        "limitSymbolsToIncludedHeaders": true
-      },
-      "cStandard": "c99",
-      "cppStandard": "${default}",
-      "compilerPath": "/usr/bin/gcc-code",
-      "defines": ["_GNU_SOURCE", "__cplusplus=201812L", "__cpp_intellisense"],
-      "includePath": [
-        "**",
-        "include/**",
-        "../**",
-        "../include/**",
-        "${workspaceFolder}/.vscode/**",
-        "/usr/lib/gcc/**",
-        "/usr/include/**",
-        "/usr/local/include/**"
-      ],
-      "intelliSenseMode": "gcc-x64"
-    }
-  ],
-  "version": 4
+    "configurations": [
+        {
+            "name": "Linux",
+            "browse": {
+                "databaseFilename": "/tmp/vscodecpp.db",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "cStandard": "c99",
+            "cppStandard": "${default}",
+            "compilerPath": "/usr/bin/gcc-code",
+            "defines": [
+                "_GNU_SOURCE",
+                "__cplusplus=201812L",
+                "__cpp_intellisense"
+            ],
+            "includePath": [
+                "**",
+                "include/**",
+                "../**",
+                "../include/**",
+                "${workspaceFolder}/.vscode/**",
+                "/usr/lib/gcc/**",
+                "/usr/include/**",
+                "/usr/local/include/**",
+                "/usr/include",
+                "/usr/include/c++/8.2.1/tr1"
+            ],
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
 }
