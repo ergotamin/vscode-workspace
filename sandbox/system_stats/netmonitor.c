@@ -8,9 +8,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <pthread.h>
-#include <sys/types.h>
-#include <sys/ioctl.h>
 //
 struct netsta_t {
     unsigned int	fmt_in;
@@ -26,28 +23,18 @@ static const char *txpath = "/statistics/tx_bytes";
 //
 static struct netsta_t *netsta;
 //
-unsigned int term_width(void);
 long abs_l(long value);
 void check_device(const char *dnam);
 char *_read_data(void *buf, unsigned long le, const char *fpath);
 void get_stats(const char *rxfile, const char *txfile);
 void set_stats(long tx_abs, long rx_abs);
-
 //
-#define DEL                    "\x1b[1K"
-#define CUU                    "\x1b[A"
+#define DEL                     "\x1b[1K"
+#define CUU                     "\x1b[A"
 //
-#define __(fn)                 __builtin_ ## fn
-#define read_data(size, fpath) _read_data(__builtin_alloca(size), size, fpath)
+#define __(fn)                  __builtin_ ## fn
+#define read_data(size, fpath)  _read_data(__builtin_alloca(size), size, fpath)
 #define MARK()                  printf("%s at line %s\n", __FUNCTION__, __LINE__)
-//
-unsigned int term_width(void)
-{
-    struct winsize wd;
-
-    ioctl(0, TIOCGWINSZ, &wd);
-    return wd.ws_col;
-}
 //
 long abs_l(long value)
 {
