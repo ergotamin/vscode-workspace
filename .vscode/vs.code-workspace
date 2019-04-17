@@ -2,6 +2,9 @@
   "folders": [
     {
       "path": "/root/work"
+    },
+    {
+      "path": "/root/build"
     }
   ],
   "settings": {
@@ -18,7 +21,7 @@
     "uncrustify.graphicalConfig": false,
     "uncrustify.debug": false,
     "uncrustify.executablePath": "/usr/bin/uncrustify",
-    "uncrustify.configPath": ".vscode/uncrustify/uncrustify.conf",
+    "uncrustify.configPath": "/root/work/.vscode/uncrustify/uncrustify.conf",
     "terminal.integrated.shell.linux": "/usr/bin/zsh",
     "terminal.integrated.rendererType": "dom",
     "terminal.integrated.fontSize": 14,
