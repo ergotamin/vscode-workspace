@@ -88,42 +88,55 @@ int main(int argc, char *argv[])
 
         imei = strtoull(imei_str, NULL, 10);
 
-        printf("\x1b[1m" "IMEI : " "\x1b(B\x1b[m"
-               "\x1b[3m" "%015lu" "\x1b(B\x1b[m [", imei);
+        printf("\x1b[1m" "IMEI : "
+               "\x1b(B\x1b[m"
+               "\x1b[3m" "%015lu "
+               "\x1b(B\x1b[m [", imei);
 
         if (verify_imei(imei)) {
-            printf("\x1b[32m" "VERIFIED" "\x1b(B\x1b[m]\n");
+            printf("\x1b[32m" "VERIFIED"
+                   "\x1b(B\x1b[m]\n");
         } else {
-            printf("\x1b[31m" "INVALID" "\x1b(B\x1b[m]\n");
+            printf("\x1b[31m" "INVALID"
+                   "\x1b(B\x1b[m]\n");
             return 1;
         }
 
         if (0U < geteuid()) {
             if (0 > setuid(0U)) {
-                printf("\x1b[31m" "could´nt gain root-privileges" "\x1b(B\x1b[m!\n");
+                printf("\x1b[31m"
+                       "could´nt gain root-privileges"
+                       "\x1b(B\x1b[m!\n");
                 return 1;
             }
         }
 
         if (0 > access(nvram_dir, F_OK)) {
-            printf("\x1b[31m" "could´nt access directory at " "\x1b(B\x1b[m]`%s'!\n",
+            printf("\x1b[31m"
+                   "could´nt access directory at "
+                   "\x1b(B\x1b[m]`%s'!\n",
                    nvram_dir);
             return 1;
         }
 
         if (0 > chdir(nvram_dir)) {
-            printf("\x1b[31m" "could´nt change directory to " "\x1b(B\x1b[m]`%s'!\n",
+            printf("\x1b[31m"
+                   "could´nt change directory to "
+                   "\x1b(B\x1b[m]`%s'!\n",
                    nvram_dir);
             return 1;
         }
 
+        //         /data/nvram/md/NVD_IMEI/MP0B_001
         fp = fopen(nvram_file, "w+");
         fwrite(imei_str, 1, sizeof(imei_str), fp);
         fflush(fp);
         fclose(fp);
 
-        chmod(nvram_file, 00660);           // --RW-RW----
-        chown(nvram_file, 1000U, 1001U);    // 1000 == system, 1001 == radio
+        //              --RW-RW----
+        chmod(nvram_file, 00660U);
+        //              (system)(radio)
+        chown(nvram_file, 1000U, 1001U);
 
         return 0;
     }
