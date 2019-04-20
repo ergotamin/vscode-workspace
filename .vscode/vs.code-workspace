@@ -4,7 +4,7 @@
       "path": "/root/work"
     },
     {
-      "path": "/root/build"
+      "path": "/usr/local"
     }
   ],
   "settings": {
@@ -25,7 +25,7 @@
     "terminal.integrated.shell.linux": "/usr/bin/zsh",
     "terminal.integrated.rendererType": "dom",
     "terminal.integrated.fontSize": 14,
-    "terminal.integrated.fontFamily": "Operator Mono Book",
+    "terminal.integrated.fontFamily": "Operator SSm Book",
     "terminal.integrated.cursorStyle": "line",
     "terminal.integrated.cursorBlinking": true,
     "telemetry.enableTelemetry": false,
