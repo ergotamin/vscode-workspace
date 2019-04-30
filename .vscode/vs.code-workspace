@@ -5,6 +5,9 @@
     },
     {
       "path": "/usr/local"
+    },
+    {
+      "path": "/root/build"
     }
   ],
   "settings": {
