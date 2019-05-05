@@ -24,7 +24,10 @@
                 "/usr/include/**",
                 "/usr/local/include/**",
                 "/usr/include",
-                "/usr/include/c++/8.2.1/tr1"
+                "/usr/include/c++/8.2.1/tr1",
+                "/usr/src/5.0.0-meta-zen/include/**",
+                "/usr/src/5.0.0-meta-zen/drivers/**",
+                "/usr/src/5.0.0-meta-zen/arch/x86/include/**"
             ],
             "intelliSenseMode": "gcc-x64"
         }
